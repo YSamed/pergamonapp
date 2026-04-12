@@ -1,3 +1,19 @@
 export type RootStackParamList = {
-  Test: undefined;
+  Main: undefined;
+  Onboarding: undefined;
+};
+
+export type MainTabParamList = {
+  Home: undefined;
+  Tasks: undefined;
+  Progress: undefined;
+  Clan: undefined;
+  Profile: undefined;
+};
+
+export type TasksStackParamList = {
+  TasksList: undefined;
+  HabitDetail: { habitId: string };
+  TodoDetail: { todoId: string };
+  AddTask: { type: 'habit' | 'todo' };
 };

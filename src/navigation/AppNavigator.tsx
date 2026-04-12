@@ -5,6 +5,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { colors, spacing, radius } from '../theme';
 import { TasksScreen } from '../screens/TasksScreen';
 import { CreateTaskScreen } from '../screens/CreateTaskScreen';
+import { TaskDetailScreen } from '../screens/TaskDetailScreen';
 import type { MainTabParamList, RootStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -56,6 +57,7 @@ export const AppNavigator = () => (
   <NavigationContainer>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Main" component={MainTabs} />
+      <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
       <Stack.Screen
         name="CreateTask"
         options={{

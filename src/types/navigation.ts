@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Main: undefined;
   Onboarding: undefined;
   CreateTask: undefined;
+  TaskDetail: { taskId: string; taskType: 'habit' | 'todo' };
 };
 
 export type MainTabParamList = {

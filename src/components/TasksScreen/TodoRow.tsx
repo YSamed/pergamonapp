@@ -6,6 +6,7 @@ import type { Todo } from '../../types';
 type Props = {
   todo: Todo;
   onComplete: (id: string) => void;
+  onPress?: (id: string) => void;
 };
 
 const d = colors.dark;
@@ -29,11 +30,15 @@ const SKILL_EMOJI: Record<string, string> = {
   social: '🤝',
 };
 
-export const TodoRow = ({ todo, onComplete }: Props) => {
+export const TodoRow = ({ todo, onComplete, onPress }: Props) => {
   const isCompleted = !!todo.completedAt;
 
   return (
-    <View style={[styles.row, isCompleted && styles.rowCompleted]}>
+    <TouchableOpacity
+      style={[styles.row, isCompleted && styles.rowCompleted]}
+      onPress={() => onPress?.(todo.id)}
+      activeOpacity={0.8}
+    >
       {/* Sol: İkon placeholder */}
       <View style={styles.iconBox}>
         <Text style={styles.iconEmoji}>📋</Text>
@@ -74,7 +79,7 @@ export const TodoRow = ({ todo, onComplete }: Props) => {
       >
         {isCompleted && <Text style={styles.checkMark}>✓</Text>}
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 };
 

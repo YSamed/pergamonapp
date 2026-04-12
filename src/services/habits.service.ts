@@ -44,6 +44,21 @@ export const habitsService = {
     return newHabit;
   },
 
+  async getHabitById(id: string): Promise<Habit | null> {
+    return _habits.find((h) => h.id === id) ?? null;
+  },
+
+  async uncompleteHabit(id: string): Promise<Habit> {
+    const index = _habits.findIndex((h) => h.id === id);
+    if (index === -1) throw new Error(`Habit not found: ${id}`);
+    _habits[index] = {
+      ..._habits[index],
+      completedTodayAt: null,
+      streak: Math.max(0, _habits[index].streak - 1),
+    };
+    return _habits[index];
+  },
+
   async deleteHabit(id: string): Promise<void> {
     _habits = _habits.filter((h) => h.id !== id);
   },

@@ -62,6 +62,10 @@ export const TasksScreen = () => {
     setTodos(t);
   };
 
+  const handleTaskPress = (id: string, type: 'habit' | 'todo') => {
+    navigation.navigate('TaskDetail', { taskId: id, taskType: type });
+  };
+
   const handleCompleteHabit = async (id: string) => {
     const updated = await habitsService.completeHabit(id);
     setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
@@ -123,7 +127,7 @@ export const TasksScreen = () => {
                 </View>
               </View>
               {habits.map((habit) => (
-                <HabitRow key={habit.id} habit={habit} onComplete={handleCompleteHabit} />
+                <HabitRow key={habit.id} habit={habit} onComplete={handleCompleteHabit} onPress={(id) => handleTaskPress(id, 'habit')} />
               ))}
             </View>
           )}
@@ -138,7 +142,7 @@ export const TasksScreen = () => {
                 </View>
               </View>
               {todos.map((todo) => (
-                <TodoRow key={todo.id} todo={todo} onComplete={handleCompleteTodo} />
+                <TodoRow key={todo.id} todo={todo} onComplete={handleCompleteTodo} onPress={(id) => handleTaskPress(id, 'todo')} />
               ))}
             </View>
           )}

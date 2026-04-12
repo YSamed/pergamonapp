@@ -34,6 +34,24 @@ export const todosService = {
     return newTodo;
   },
 
+  async getTodoById(id: string): Promise<Todo | null> {
+    return _todos.find((t) => t.id === id) ?? null;
+  },
+
+  async uncompleteTodo(id: string): Promise<Todo> {
+    const index = _todos.findIndex((t) => t.id === id);
+    if (index === -1) throw new Error(`Todo not found: ${id}`);
+    _todos[index] = { ..._todos[index], completedAt: null };
+    return _todos[index];
+  },
+
+  async failTodo(id: string): Promise<Todo> {
+    const index = _todos.findIndex((t) => t.id === id);
+    if (index === -1) throw new Error(`Todo not found: ${id}`);
+    _todos[index] = { ..._todos[index], completedAt: 'failed' };
+    return _todos[index];
+  },
+
   async deleteTodo(id: string): Promise<void> {
     _todos = _todos.filter((t) => t.id !== id);
   },

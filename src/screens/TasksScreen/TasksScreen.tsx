@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../types';
 import { colors, spacing, radius } from '../../theme';
 import { habitsService } from '../../services/habits.service';
 import { todosService } from '../../services/todos.service';
@@ -23,6 +25,7 @@ type FilterTab = 'all' | 'habits' | 'todos';
 const d = colors.dark;
 
 export const TasksScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [user, setUser] = useState<User | null>(null);
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -61,7 +64,7 @@ export const TasksScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" backgroundColor={d.background} />
+
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
@@ -131,7 +134,7 @@ export const TasksScreen = () => {
         </ScrollView>
 
         {/* Floating Add Button */}
-        <TouchableOpacity style={styles.fab}>
+        <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('CreateTask')}>
           <Text style={styles.fabIcon}>+</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -172,7 +175,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    minHeight: 56,
   },
   headerGiftIcon: {
     fontSize: 22,

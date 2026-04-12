@@ -1,14 +1,16 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, spacing, radius } from '../theme';
 import { TasksScreen } from '../screens/TasksScreen';
-import type { MainTabParamList } from '../types';
+import { CreateTaskScreen } from '../screens/CreateTaskScreen';
+import type { MainTabParamList, RootStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 const d = colors.dark;
 
-// Placeholder screen'ler — ileride gerçek ekranlarla değiştirilecek
 const PlaceholderScreen = ({ name }: { name: string }) => (
   <View style={styles.placeholder}>
     <Text style={styles.placeholderText}>{name}</Text>
@@ -24,35 +26,57 @@ const TAB_ICONS: Record<string, string> = {
   Profile: '👤',
 };
 
-export const AppNavigator = () => {
-  return (
-    <NavigationContainer>
-      <Tab.Navigator
-        initialRouteName="Tasks"
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarStyle: styles.tabBar,
-          tabBarActiveTintColor: d.primary,
-          tabBarInactiveTintColor: d.textMuted,
-          tabBarShowLabel: false,
-          tabBarIcon: ({ focused, color }) => (
-            <View style={[styles.tabIconWrap, focused && styles.tabIconWrapActive]}>
-              <Text style={[styles.tabIcon, { color }]}>
-                {TAB_ICONS[route.name] ?? '●'}
-              </Text>
-            </View>
-          ),
-        })}
+const MainTabs = () => (
+  <Tab.Navigator
+    initialRouteName="Tasks"
+    screenOptions={({ route }) => ({
+      headerShown: false,
+      tabBarStyle: styles.tabBar,
+      tabBarActiveTintColor: d.primary,
+      tabBarInactiveTintColor: d.textMuted,
+      tabBarShowLabel: false,
+      tabBarIcon: ({ focused, color }) => (
+        <View style={[styles.tabIconWrap, focused && styles.tabIconWrapActive]}>
+          <Text style={[styles.tabIcon, { color }]}>
+            {TAB_ICONS[route.name] ?? '●'}
+          </Text>
+        </View>
+      ),
+    })}
+  >
+    <Tab.Screen name="Tasks" component={TasksScreen} />
+    <Tab.Screen name="Home" children={() => <PlaceholderScreen name="Home" />} />
+    <Tab.Screen name="Progress" children={() => <PlaceholderScreen name="Progress" />} />
+    <Tab.Screen name="Clan" children={() => <PlaceholderScreen name="Clan" />} />
+    <Tab.Screen name="Profile" children={() => <PlaceholderScreen name="Profile" />} />
+  </Tab.Navigator>
+);
+
+export const AppNavigator = () => (
+  <NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Main" component={MainTabs} />
+      <Stack.Screen
+        name="CreateTask"
+        options={{
+          presentation: 'fullScreenModal',
+          animation: 'slide_from_bottom',
+        }}
       >
-        <Tab.Screen name="Tasks" component={TasksScreen} />
-        <Tab.Screen name="Home" children={() => <PlaceholderScreen name="Home" />} />
-        <Tab.Screen name="Progress" children={() => <PlaceholderScreen name="Progress" />} />
-        <Tab.Screen name="Clan" children={() => <PlaceholderScreen name="Clan" />} />
-        <Tab.Screen name="Profile" children={() => <PlaceholderScreen name="Profile" />} />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
-};
+        {({ navigation }) => (
+          <CreateTaskScreen
+            onClose={() => navigation.goBack()}
+            onSubmit={(task) => {
+              // TODO: servise gönder
+              console.log('New task:', task);
+              navigation.goBack();
+            }}
+          />
+        )}
+      </Stack.Screen>
+    </Stack.Navigator>
+  </NavigationContainer>
+);
 
 const styles = StyleSheet.create({
   tabBar: {

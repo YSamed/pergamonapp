@@ -8,7 +8,7 @@ import { colors } from './src/theme';
 const App = () => {
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" backgroundColor={colors.background} />
+      <StatusBar style="light" backgroundColor={colors.dark.background} />
       <AppNavigator />
     </SafeAreaProvider>
   );

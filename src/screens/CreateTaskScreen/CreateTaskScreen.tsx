@@ -11,9 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Slider from '@react-native-community/slider';
 import { colors, spacing, radius } from '../../theme';
-import { SectionCard } from './components/SectionCard';
-import { PillButton } from './components/PillButton';
-import { SliderRow } from './components/SliderRow';
+import { SectionCard } from '../../components/CreateTaskScreen/SectionCard';
+import { PillButton } from '../../components/CreateTaskScreen/PillButton';
+import { SliderRow } from '../../components/CreateTaskScreen/SliderRow';
 
 const d = colors.dark;
 

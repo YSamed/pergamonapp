@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,23 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { colors, spacing, radius } from '../../../theme';
+import { colors, spacing, radius } from '../../theme';
 
 const d = colors.dark;
 
 type Props = {
   visible: boolean;
+  initialValue?: string;
   onCancel: () => void;
   onCreate: (name: string) => void;
 };
 
-export const NewCategoryDialog = ({ visible, onCancel, onCreate }: Props) => {
-  const [name, setName] = useState('');
+export const NewCategoryDialog = ({ visible, initialValue, onCancel, onCreate }: Props) => {
+  const [name, setName] = useState(initialValue ?? '');
+
+  useEffect(() => {
+    if (visible) setName(initialValue ?? '');
+  }, [visible, initialValue]);
 
   const handleCreate = () => {
     if (!name.trim()) return;
@@ -40,7 +45,7 @@ export const NewCategoryDialog = ({ visible, onCancel, onCreate }: Props) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.dialog}>
-          <Text style={styles.title}>New category</Text>
+          <Text style={styles.title}>{initialValue ? 'Edit category' : 'New category'}</Text>
 
           <Text style={styles.label}>Name</Text>
           <TextInput

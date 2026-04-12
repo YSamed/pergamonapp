@@ -16,13 +16,21 @@ import { todosService } from '../../services/todos.service';
 import { progressService } from '../../services/progress.service';
 import { profileService } from '../../services/profile.service';
 import type { Habit, Todo, UserProgress, User } from '../../types';
-import { UserProgressCard } from './components/UserProgressCard';
-import { HabitRow } from './components/HabitRow';
-import { TodoRow } from './components/TodoRow';
+import { UserProgressCard } from '../../components/TasksScreen/UserProgressCard';
+import { HabitRow } from '../../components/TasksScreen/HabitRow';
+import { TodoRow } from '../../components/TasksScreen/TodoRow';
+import { CategoriesBottomSheet, type Category } from '../../components/TasksScreen/CategoriesBottomSheet';
+import { NewCategoryDialog } from '../../components/TasksScreen/NewCategoryDialog';
+import { DeleteCategoryDialog } from '../../components/TasksScreen/DeleteCategoryDialog';
 
 type FilterTab = 'all' | 'habits' | 'todos';
 
 const d = colors.dark;
+
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: 'habits', name: 'Habits', taskCount: 1 },
+  { id: 'todos', name: 'To Do', taskCount: 4 },
+];
 
 export const TasksScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -31,6 +39,11 @@ export const TasksScreen = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<FilterTab>('all');
+  const [showCategories, setShowCategories] = useState(false);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [editTarget, setEditTarget] = useState<Category | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
 
   useEffect(() => {
     void loadData();
@@ -74,7 +87,7 @@ export const TasksScreen = () => {
             <TouchableOpacity style={styles.headerBtn}>
               <Text style={styles.headerBtnIcon}>🕐</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.headerBtn}>
+            <TouchableOpacity style={styles.headerBtn} onPress={() => setShowCategories(true)}>
               <Text style={styles.headerBtnIcon}>☰</Text>
             </TouchableOpacity>
           </View>
@@ -138,6 +151,64 @@ export const TasksScreen = () => {
           <Text style={styles.fabIcon}>+</Text>
         </TouchableOpacity>
       </SafeAreaView>
+
+      <CategoriesBottomSheet
+        visible={showCategories}
+        categories={categories}
+        onClose={() => setShowCategories(false)}
+        onAddPress={() => {
+          setShowCategories(false);
+          setShowNewCategory(true);
+        }}
+        onEditPress={(cat) => {
+          setShowCategories(false);
+          setEditTarget(cat);
+          setShowNewCategory(true);
+        }}
+        onDeletePress={(cat) => {
+          setShowCategories(false);
+          setDeleteTarget(cat);
+        }}
+        onAddSkillPress={() => {
+          setShowCategories(false);
+          setShowNewCategory(true);
+        }}
+      />
+
+      <NewCategoryDialog
+        visible={showNewCategory}
+        initialValue={editTarget?.name}
+        onCancel={() => {
+          setShowNewCategory(false);
+          setEditTarget(null);
+        }}
+        onCreate={(name) => {
+          if (editTarget) {
+            setCategories((prev) =>
+              prev.map((c) => (c.id === editTarget.id ? { ...c, name } : c)),
+            );
+          } else {
+            setCategories((prev) => [
+              ...prev,
+              { id: `cat-${Date.now()}`, name, taskCount: 0 },
+            ]);
+          }
+          setShowNewCategory(false);
+          setEditTarget(null);
+        }}
+      />
+
+      <DeleteCategoryDialog
+        visible={!!deleteTarget}
+        categoryName={deleteTarget?.name ?? ''}
+        onCancel={() => setDeleteTarget(null)}
+        onDelete={() => {
+          if (deleteTarget) {
+            setCategories((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+          }
+          setDeleteTarget(null);
+        }}
+      />
     </View>
   );
 };

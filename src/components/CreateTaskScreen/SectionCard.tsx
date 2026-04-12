@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, radius } from '../../../theme';
+import { colors, spacing, radius } from '../../theme';
 
 const d = colors.dark;
 

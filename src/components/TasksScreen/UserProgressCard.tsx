@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, spacing, radius } from '../../../theme';
-import type { UserProgress, User } from '../../../types';
+import { colors, spacing, radius } from '../../theme';
+import type { UserProgress, User } from '../../types';
 
 type Props = {
   user: User;

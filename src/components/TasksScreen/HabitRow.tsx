@@ -1,20 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, radius } from '../../../theme';
-import type { Todo } from '../../../types';
+import { colors, spacing, radius } from '../../theme';
+import type { Habit } from '../../types';
 
 type Props = {
-  todo: Todo;
+  habit: Habit;
   onComplete: (id: string) => void;
 };
 
 const d = colors.dark;
-
-const PRIORITY_COLOR: Record<string, string> = {
-  high: colors.priorityHigh,
-  medium: colors.priorityMedium,
-  low: colors.priorityLow,
-};
 
 const SKILL_EMOJI: Record<string, string> = {
   strength: '💪',
@@ -29,39 +23,32 @@ const SKILL_EMOJI: Record<string, string> = {
   social: '🤝',
 };
 
-export const TodoRow = ({ todo, onComplete }: Props) => {
-  const isCompleted = !!todo.completedAt;
+export const HabitRow = ({ habit, onComplete }: Props) => {
+  const isCompleted = !!habit.completedTodayAt;
 
   return (
     <View style={[styles.row, isCompleted && styles.rowCompleted]}>
       {/* Sol: İkon placeholder */}
       <View style={styles.iconBox}>
-        <Text style={styles.iconEmoji}>📋</Text>
+        <Text style={styles.iconEmoji}>📸</Text>
       </View>
 
-      {/* Orta */}
+      {/* Orta: Başlık + skill'ler */}
       <View style={styles.middle}>
-        <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={2}>
-          {todo.title}
+        <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={1}>
+          {habit.title}
         </Text>
-        <View style={styles.tagRow}>
-          {/* XP badge */}
-          <View style={styles.xpBadge}>
-            <Text style={styles.xpText}>💜 +{todo.xpReward}</Text>
-          </View>
-          <View style={styles.xpBadge}>
-            <Text style={styles.xpText}>🔥 +{todo.xpReward}</Text>
-          </View>
-          {/* Skill emojis */}
-          {todo.skillIds.slice(0, 1).map((s) => (
-            <Text key={s} style={styles.skillEmoji}>{SKILL_EMOJI[s] ?? '⭐'}</Text>
+        <View style={styles.skillRow}>
+          {habit.skillIds.slice(0, 2).map((skillId) => (
+            <Text key={skillId} style={styles.skillEmoji}>
+              {SKILL_EMOJI[skillId] ?? '⭐'}
+            </Text>
           ))}
-          {todo.skillIds.length > 1 && (
-            <Text style={styles.extraSkills}>+{todo.skillIds.length - 1}</Text>
+          {habit.skillIds.length > 2 && (
+            <Text style={styles.extraSkills}>+{habit.skillIds.length - 2}</Text>
           )}
-          {/* Difficulty emoji */}
-          <Text style={styles.skillEmoji}>
-            {todo.difficulty === 'easy' ? '🙂' : todo.difficulty === 'medium' ? '😐' : '😤'}
+          <Text style={styles.difficultyEmoji}>
+            {habit.difficulty === 'easy' ? '🙂' : habit.difficulty === 'medium' ? '😐' : '😤'}
           </Text>
         </View>
       </View>
@@ -69,7 +56,7 @@ export const TodoRow = ({ todo, onComplete }: Props) => {
       {/* Sağ: Tamamla butonu */}
       <TouchableOpacity
         style={[styles.checkBox, isCompleted && styles.checkBoxDone]}
-        onPress={() => !isCompleted && onComplete(todo.id)}
+        onPress={() => !isCompleted && onComplete(habit.id)}
         activeOpacity={0.7}
       >
         {isCompleted && <Text style={styles.checkMark}>✓</Text>}
@@ -117,22 +104,10 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: d.textMuted,
   },
-  tagRow: {
+  skillRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
     gap: spacing.xs,
-  },
-  xpBadge: {
-    backgroundColor: d.surfaceElevated,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-  },
-  xpText: {
-    color: d.textSecondary,
-    fontSize: 11,
-    fontWeight: '600',
   },
   skillEmoji: {
     fontSize: 14,
@@ -141,6 +116,10 @@ const styles = StyleSheet.create({
     color: d.textSecondary,
     fontSize: 12,
     fontWeight: '600',
+  },
+  difficultyEmoji: {
+    fontSize: 14,
+    marginLeft: spacing.xs,
   },
   checkBox: {
     width: 32,

@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Modal,
 } from 'react-native';
-import { colors, spacing, radius } from '../../../theme';
+import { colors, spacing, radius } from '../../theme';
 
 const d = colors.dark;
 

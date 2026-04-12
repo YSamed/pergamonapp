@@ -4,12 +4,22 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "moduleResolution": "bundler",
     "noEmit": true,
     "strict": true,
     "target": "esnext",
-    "types": ["react", "react-native"]
+    "types": [
+      "react",
+      "react-native"
+    ]
   },
-  "include": ["App.tsx", "index.js", "src"]
+  "include": [
+    "App.tsx",
+    "index.js",
+    "src"
+  ],
+  "extends": "expo/tsconfig.base"
 }

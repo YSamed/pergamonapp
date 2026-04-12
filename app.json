@@ -1,4 +1,25 @@
 {
-  "name": "PergamonApp",
-  "displayName": "PergamonApp"
+  "expo": {
+    "name": "PergamonApp",
+    "slug": "pergamonapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font"
+    ]
+  }
 }

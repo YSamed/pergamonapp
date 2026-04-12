@@ -43,4 +43,21 @@ export const colors = {
 
   // Overlay
   overlay: 'rgba(0,0,0,0.4)',
+
+  // Dark theme
+  dark: {
+    background: '#0F0F14',
+    surface: '#1A1A24',
+    surfaceElevated: '#22222E',
+    border: '#2E2E3E',
+    text: '#F1F1F5',
+    textSecondary: '#9090A8',
+    textMuted: '#55556A',
+    primary: '#00C2A0',
+    primaryDim: '#00C2A020',
+    xp: '#F59E0B',
+    xpBar: '#F59E0B',
+    streakBar: '#FACC15',
+    cardBorder: '#2A2A38',
+  },
 } as const;

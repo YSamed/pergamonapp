@@ -1,21 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Animated,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../types';
 import { colors, spacing, radius } from '../../theme';
 import { habitsService } from '../../services/habits.service';
 import { todosService } from '../../services/todos.service';
 import type { Habit, Todo } from '../../types';
+import { InfoCard } from '../../components/TaskDetailScreen/InfoCard';
+import { WeeklyActivity } from '../../components/TaskDetailScreen/WeeklyActivity';
+import { TaskFab } from '../../components/TaskDetailScreen/TaskFab';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TaskDetail'>;
 
@@ -41,23 +42,15 @@ const DIFFICULTY_INFO = {
   hard: { emoji: '😤', label: 'Hard', color: colors.difficultyHard },
 };
 
-// Minimal weekly activity mock — gerçek uygulamada API'den gelir
-const DAYS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
-
 const todayDayIndex = (() => {
-  const d = new Date().getDay(); // 0=Sun
-  return d === 0 ? 6 : d - 1; // 0=Mon...6=Sun
+  const day = new Date().getDay(); // 0=Sun
+  return day === 0 ? 6 : day - 1;
 })();
 
 export const TaskDetailScreen = ({ route, navigation }: Props) => {
   const { taskId, taskType } = route.params;
   const [habit, setHabit] = useState<Habit | null>(null);
   const [todo, setTodo] = useState<Todo | null>(null);
-  const [fabOpen, setFabOpen] = useState(false);
-  const [weekOffset, setWeekOffset] = useState(0); // 0 = current week
-
-  // FAB animation
-  const fabAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     void load();
@@ -65,57 +58,31 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
 
   const load = async () => {
     if (taskType === 'habit') {
-      const h = await habitsService.getHabitById(taskId);
-      setHabit(h);
+      setHabit(await habitsService.getHabitById(taskId));
     } else {
-      const t = await todosService.getTodoById(taskId);
-      setTodo(t);
+      setTodo(await todosService.getTodoById(taskId));
     }
   };
 
-  const toggleFab = () => {
-    const toValue = fabOpen ? 0 : 1;
-    Animated.spring(fabAnim, {
-      toValue,
-      useNativeDriver: true,
-      bounciness: 8,
-    }).start();
-    setFabOpen(!fabOpen);
-  };
-
-  const closeFab = () => {
-    if (!fabOpen) return;
-    Animated.spring(fabAnim, { toValue: 0, useNativeDriver: true }).start();
-    setFabOpen(false);
-  };
-
   const handleComplete = async () => {
-    closeFab();
     if (taskType === 'habit' && habit) {
-      const updated = await habitsService.completeHabit(taskId);
-      setHabit(updated);
+      setHabit(await habitsService.completeHabit(taskId));
     } else if (taskType === 'todo' && todo) {
-      const updated = await todosService.completeTodo(taskId);
-      setTodo(updated);
+      setTodo(await todosService.completeTodo(taskId));
     }
   };
 
   const handleFail = async () => {
-    closeFab();
     if (taskType === 'todo' && todo) {
-      const updated = await todosService.failTodo(taskId);
-      setTodo(updated);
+      setTodo(await todosService.failTodo(taskId));
     }
   };
 
   const handleUndo = async () => {
-    closeFab();
     if (taskType === 'habit' && habit) {
-      const updated = await habitsService.uncompleteHabit(taskId);
-      setHabit(updated);
+      setHabit(await habitsService.uncompleteHabit(taskId));
     } else if (taskType === 'todo' && todo) {
-      const updated = await todosService.uncompleteTodo(taskId);
-      setTodo(updated);
+      setTodo(await todosService.uncompleteTodo(taskId));
     }
   };
 
@@ -147,88 +114,26 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
   const isFailed = !isHabit && (todo as Todo).completedAt === 'failed';
 
   const difficulty = DIFFICULTY_INFO[task.difficulty];
-
-  // Category label
   const categoryLabel = isHabit ? 'Habit' : 'To Do';
-
-  // Status label
   const statusLabel = isFailed ? 'Failed' : isCompleted ? 'Completed' : 'Pending';
-
-  // Fotoğraflardaki gibi Energy cost = difficulty-based, Health cost ve Coins Reward
   const energyCost = task.difficulty === 'easy' ? 1 : task.difficulty === 'medium' ? 2 : 3;
-  const healthCost = 0;
-  const coinsReward = 0;
 
-  // Weekly activity: sadece habit için anlamlı
-  // Mock: sadece bugün complete ise bugün işaretli
-  const weekActivity = DAYS.map((_, i) => {
-    if (i === todayDayIndex && isCompleted) return 1;
-    return 0;
-  });
-
-  // Animate FAB actions
-  const btn1 = {
-    transform: [
-      {
-        translateY: fabAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -70],
-        }),
-      },
-      { scale: fabAnim },
-    ],
-    opacity: fabAnim,
-  };
-  const btn2 = {
-    transform: [
-      {
-        translateY: fabAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -140],
-        }),
-      },
-      { scale: fabAnim },
-    ],
-    opacity: fabAnim,
-  };
-  const btn3 = {
-    transform: [
-      {
-        translateY: fabAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -210],
-        }),
-      },
-      { scale: fabAnim },
-    ],
-    opacity: fabAnim,
-  };
-  const btn4 = {
-    transform: [
-      {
-        translateY: fabAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -280],
-        }),
-      },
-      { scale: fabAnim },
-    ],
-    opacity: fabAnim,
-  };
+  const weekActivity = Array.from({ length: 7 }, (_, i) =>
+    (i === todayDayIndex && isCompleted ? 1 : 0) as 0 | 1,
+  );
+  const completedDates = isCompleted && isHabit ? [new Date().toDateString()] : [];
 
   return (
     <View style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-            <Text style={styles.backIcon}>{'<'}</Text>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.goBack()}>
+            <Text style={styles.headerIcon}>{'<'}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {task.title}
-          </Text>
-          <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete}>
-            <Text style={styles.deleteIcon}>🗑</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>{task.title}</Text>
+          <TouchableOpacity style={styles.iconBtn} onPress={handleDelete}>
+            <Text style={styles.headerIcon}>🗑</Text>
           </TouchableOpacity>
         </View>
 
@@ -236,10 +141,9 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          onScrollBeginDrag={closeFab}
         >
-          {/* Task Icon + Title */}
-          <View style={styles.heroSection}>
+          {/* Hero */}
+          <View style={styles.hero}>
             <View style={styles.iconBox}>
               <Text style={styles.iconEmoji}>🏀</Text>
             </View>
@@ -265,7 +169,7 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
             </InfoCard>
           </View>
 
-          {/* Energy cost + Health cost */}
+          {/* Energy + Health cost */}
           <View style={styles.row2}>
             <InfoCard style={styles.flex1}>
               <Text style={styles.cardLabel}>Energy cost</Text>
@@ -279,7 +183,7 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
               <Text style={styles.cardLabel}>Health cost</Text>
               <View style={styles.costRow}>
                 <Text style={styles.costEmoji}>❤️</Text>
-                <Text style={styles.costValue}>{healthCost}</Text>
+                <Text style={styles.costValue}>0</Text>
               </View>
             </InfoCard>
           </View>
@@ -289,71 +193,15 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
             <Text style={styles.cardLabel}>Coins Reward</Text>
             <View style={styles.costRow}>
               <Text style={styles.costEmoji}>🪙</Text>
-              <Text style={styles.coinsValue}>+{coinsReward}</Text>
+              <Text style={styles.coinsValue}>+0</Text>
             </View>
           </InfoCard>
 
           {/* Weekly Activity */}
-          <View style={styles.weeklySection}>
-            <View style={styles.weeklyHeader}>
-              <Text style={styles.weeklyTitle}>Weekly Activity</Text>
-              <View style={styles.completionBadge}>
-                <Text style={styles.completionBadgeText}>
-                  {weekActivity.reduce((a, b) => a + b, 0)} ✓
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.weekGrid}>
-              {DAYS.map((day, i) => (
-                <View key={day} style={styles.dayCol}>
-                  <View
-                    style={[
-                      styles.dayBox,
-                      weekActivity[i] ? styles.dayBoxDone : null,
-                      i === todayDayIndex ? styles.dayBoxToday : null,
-                    ]}
-                  >
-                    {weekActivity[i] ? (
-                      <Text style={styles.dayNum}>{i + 1}</Text>
-                    ) : null}
-                    {i === todayDayIndex && !weekActivity[i] ? (
-                      <Text style={styles.dayNum}>{i + 1}</Text>
-                    ) : null}
-                  </View>
-                  <Text style={styles.dayLabel}>{day}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Week navigation */}
-            <View style={styles.weekNav}>
-              <TouchableOpacity
-                style={styles.weekNavBtn}
-                onPress={() => setWeekOffset((p) => p - 1)}
-              >
-                <Text style={styles.weekNavArrow}>{'<'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.currentWeekBtn}
-                onPress={() => setWeekOffset(0)}
-              >
-                <Text style={styles.currentWeekText}>Current Week</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.weekNavBtn}
-                onPress={() => setWeekOffset((p) => p + 1)}
-              >
-                <Text style={styles.weekNavArrow}>{'>'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.weekNavBtn}>
-                <Text style={styles.weekNavGrid}>⊞</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <WeeklyActivity activity={weekActivity} completedDates={completedDates} />
 
           {/* Skills */}
-          <View style={styles.skillsSection}>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Skills</Text>
             <InfoCard>
               <View style={styles.skillsRow}>
@@ -372,15 +220,14 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
           </View>
 
           {/* Task Details */}
-          <View style={styles.detailsSection}>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Task Details</Text>
             <View style={styles.row2}>
               <InfoCard style={styles.flex1}>
                 <Text style={styles.cardLabel}>Frequency</Text>
                 <Text style={styles.cardValue}>
                   {isHabit
-                    ? (habit as Habit).frequency.charAt(0).toUpperCase() +
-                      (habit as Habit).frequency.slice(1)
+                    ? (habit as Habit).frequency.charAt(0).toUpperCase() + (habit as Habit).frequency.slice(1)
                     : 'Not scheduled'}
                 </Text>
               </InfoCard>
@@ -410,8 +257,7 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
                 <Text style={styles.cardLabel}>Priority</Text>
                 <Text style={styles.cardValue}>
                   {!isHabit
-                    ? (todo as Todo).priority.charAt(0).toUpperCase() +
-                      (todo as Todo).priority.slice(1)
+                    ? (todo as Todo).priority.charAt(0).toUpperCase() + (todo as Todo).priority.slice(1)
                     : 'Medium'}
                 </Text>
               </InfoCard>
@@ -437,80 +283,20 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
           <View style={styles.bottomPad} />
         </ScrollView>
 
-        {/* FAB + Actions */}
-        <View style={styles.fabContainer} pointerEvents="box-none">
-          {/* Action buttons */}
-          <Animated.View style={[styles.fabAction, btn4]}>
-            <Text style={styles.fabActionLabel}>Undo</Text>
-            <TouchableOpacity style={[styles.fabActionBtn, styles.fabActionUndo]} onPress={handleUndo}>
-              <Text style={styles.fabActionIcon}>↩</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          <Animated.View style={[styles.fabAction, btn3]}>
-            <Text style={styles.fabActionLabel}>Edit</Text>
-            <TouchableOpacity style={[styles.fabActionBtn, styles.fabActionEdit]} onPress={closeFab}>
-              <Text style={styles.fabActionIcon}>✎</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          <Animated.View style={[styles.fabAction, btn2]}>
-            <Text style={styles.fabActionLabel}>Fail</Text>
-            <TouchableOpacity style={[styles.fabActionBtn, styles.fabActionFail]} onPress={handleFail}>
-              <Text style={styles.fabActionIcon}>✕</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          <Animated.View style={[styles.fabAction, btn1]}>
-            <Text style={styles.fabActionLabel}>Completed</Text>
-            <TouchableOpacity style={[styles.fabActionBtn, styles.fabActionComplete]} onPress={handleComplete}>
-              <Text style={styles.fabActionIcon}>✓</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          {/* Main FAB */}
-          <TouchableOpacity style={styles.fab} onPress={toggleFab} activeOpacity={0.85}>
-            <Animated.Text
-              style={[
-                styles.fabIcon,
-                {
-                  transform: [
-                    {
-                      rotate: fabAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ['0deg', '90deg'],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            >
-              {fabOpen ? '←' : '☰'}
-            </Animated.Text>
-          </TouchableOpacity>
-        </View>
+        <TaskFab
+          onComplete={handleComplete}
+          onFail={handleFail}
+          onUndo={handleUndo}
+          onEdit={() => {}}
+        />
       </SafeAreaView>
     </View>
   );
 };
 
-// Küçük helper component
-const InfoCard = ({
-  children,
-  style,
-}: {
-  children: React.ReactNode;
-  style?: object;
-}) => <View style={[styles.infoCard, style]}>{children}</View>;
-
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: d.background,
-  },
-  safeArea: {
-    flex: 1,
-  },
+  screen: { flex: 1, backgroundColor: d.background },
+  safeArea: { flex: 1 },
 
   // Header
   header: {
@@ -519,17 +305,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
   },
-  backBtn: {
+  iconBtn: {
     width: 36,
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backIcon: {
-    color: d.text,
-    fontSize: 20,
-    fontWeight: '600',
-  },
+  headerIcon: { color: d.text, fontSize: 20, fontWeight: '600' },
   headerTitle: {
     flex: 1,
     color: d.text,
@@ -537,15 +319,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginHorizontal: spacing.sm,
-  },
-  deleteBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  deleteIcon: {
-    fontSize: 18,
   },
 
   // Scroll
@@ -557,11 +330,7 @@ const styles = StyleSheet.create({
   },
 
   // Hero
-  heroSection: {
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    gap: spacing.sm,
-  },
+  hero: { alignItems: 'center', paddingVertical: spacing.md, gap: spacing.sm },
   iconBox: {
     width: 72,
     height: 72,
@@ -570,47 +339,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconEmoji: {
-    fontSize: 36,
-  },
-  heroTitle: {
-    color: d.text,
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
+  iconEmoji: { fontSize: 36 },
+  heroTitle: { color: d.text, fontSize: 18, fontWeight: '700', textAlign: 'center' },
 
-  // Cards
-  infoCard: {
-    backgroundColor: d.surface,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: d.cardBorder,
-    gap: spacing.xs,
-  },
-  cardLabel: {
-    color: d.textSecondary,
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  cardValue: {
-    color: d.text,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  statusCompleted: {
-    color: colors.success,
-  },
-  statusFailed: {
-    color: colors.error,
-  },
+  // Card content
+  cardLabel: { color: d.textSecondary, fontSize: 13, fontWeight: '500' },
+  cardValue: { color: d.text, fontSize: 15, fontWeight: '600' },
+  statusCompleted: { color: colors.success },
+  statusFailed: { color: colors.error },
 
-  // Row layouts
-  row2: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
+  // Layouts
+  row2: { flexDirection: 'row', gap: spacing.sm },
   flex1: { flex: 1 },
 
   // Category pill
@@ -622,152 +361,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xxs,
   },
-  categoryPillText: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  categoryPillText: { color: d.text, fontSize: 13, fontWeight: '600' },
 
   // Difficulty
-  diffRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
+  diffRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   diffEmoji: { fontSize: 16 },
-  diffLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
+  diffLabel: { fontSize: 15, fontWeight: '600' },
 
   // Cost
-  costRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xxs,
-  },
+  costRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs },
   costEmoji: { fontSize: 18 },
-  costValue: {
-    color: d.text,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  coinsValue: {
-    color: colors.xp,
-    fontSize: 15,
-    fontWeight: '700',
-  },
+  costValue: { color: d.text, fontSize: 15, fontWeight: '600' },
+  coinsValue: { color: colors.xp, fontSize: 15, fontWeight: '700' },
 
-  // Weekly
-  weeklySection: {
-    backgroundColor: d.background,
-    gap: spacing.md,
-  },
-  weeklyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  weeklyTitle: {
-    color: d.text,
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  completionBadge: {
-    backgroundColor: d.primary,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xxs,
-  },
-  completionBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  weekGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dayCol: {
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  dayBox: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: d.surfaceElevated,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dayBoxDone: {
-    backgroundColor: d.primary,
-  },
-  dayBoxToday: {
-    backgroundColor: d.surface,
-    borderWidth: 1.5,
-    borderColor: d.primary,
-  },
-  dayNum: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  dayLabel: {
-    color: d.textSecondary,
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  weekNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  weekNavBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.full,
-    backgroundColor: d.surfaceElevated,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  weekNavArrow: {
-    color: d.text,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  weekNavGrid: {
-    color: d.primary,
-    fontSize: 16,
-  },
-  currentWeekBtn: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.full,
-    borderWidth: 1.5,
-    borderColor: d.primary,
-  },
-  currentWeekText: {
-    color: d.primary,
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  // Sections
+  section: { gap: spacing.sm },
+  sectionTitle: { color: d.text, fontSize: 17, fontWeight: '700' },
 
   // Skills
-  skillsSection: {
-    gap: spacing.sm,
-  },
-  sectionTitle: {
-    color: d.text,
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  skillsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
+  skillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   skillPill: {
     borderRadius: radius.full,
     borderWidth: 1,
@@ -775,80 +387,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
-  skillPillText: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-
-  // Details section
-  detailsSection: {
-    gap: spacing.sm,
-  },
-
-  // FAB
-  fabContainer: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: spacing.lg,
-    alignItems: 'flex-end',
-  },
-  fab: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.full,
-    backgroundColor: d.surface,
-    borderWidth: 1,
-    borderColor: d.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabIcon: {
-    color: d.text,
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  fabAction: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  fabActionLabel: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '600',
-    backgroundColor: d.surfaceElevated,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xxs,
-    borderRadius: radius.sm,
-  },
-  fabActionBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabActionComplete: {
-    backgroundColor: colors.success,
-  },
-  fabActionFail: {
-    backgroundColor: colors.error,
-  },
-  fabActionEdit: {
-    backgroundColor: d.surfaceElevated,
-  },
-  fabActionUndo: {
-    backgroundColor: colors.warning,
-  },
-  fabActionIcon: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '700',
-  },
+  skillPillText: { color: d.text, fontSize: 13, fontWeight: '600' },
 
   bottomPad: { height: 100 },
 });

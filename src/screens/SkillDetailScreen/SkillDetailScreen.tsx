@@ -14,6 +14,7 @@ import type { Skill } from '../../types';
 import { skillsService, type LinkedTask } from '../../services/skills.service';
 import { colors, spacing, radius } from '../../theme';
 import { WeeklyActivity } from '../../components/TaskDetailScreen/WeeklyActivity';
+import { EditSkillModal, type EditSkillValues } from '../../components/TaskDetailScreen/EditSkillModal';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SkillDetail'>;
 
@@ -25,6 +26,7 @@ export const SkillDetailScreen = ({ route, navigation }: Props) => {
   const [skill, setSkill] = useState<Skill | null>(null);
   const [linkedTasks, setLinkedTasks] = useState<LinkedTask[]>([]);
   const [completedDates, setCompletedDates] = useState<string[]>([]);
+  const [editVisible, setEditVisible] = useState(false);
 
   useEffect(() => {
     void Promise.all([
@@ -134,9 +136,19 @@ export const SkillDetailScreen = ({ route, navigation }: Props) => {
         </ScrollView>
 
         {/* Edit FAB */}
-        <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.fab} onPress={() => setEditVisible(true)} activeOpacity={0.85}>
           <Text style={styles.fabIcon}>✎</Text>
         </TouchableOpacity>
+
+        <EditSkillModal
+          visible={editVisible}
+          icon={skill.icon}
+          initialValues={{ label: skill.label, description: skill.description, level: skill.level }}
+          onClose={() => setEditVisible(false)}
+          onSave={(values: EditSkillValues) => {
+            setSkill({ ...skill, ...values });
+          }}
+        />
       </SafeAreaView>
     </View>
   );

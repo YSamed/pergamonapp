@@ -10,7 +10,8 @@ export type SkillId =
   | 'learning'
   | 'mindset'
   | 'career'
-  | 'social';
+  | 'social'
+  | 'fitness';
 
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly';
 

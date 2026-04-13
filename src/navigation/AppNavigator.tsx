@@ -6,6 +6,8 @@ import { colors, spacing, radius } from '../theme';
 import { TasksScreen } from '../screens/TasksScreen';
 import { CreateTaskScreen } from '../screens/CreateTaskScreen';
 import { TaskDetailScreen } from '../screens/TaskDetailScreen';
+import { SkillsScreen } from '../screens/SkillsScreen';
+import { SkillDetailScreen } from '../screens/SkillDetailScreen';
 import type { MainTabParamList, RootStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -47,7 +49,7 @@ const MainTabs = () => (
   >
     <Tab.Screen name="Tasks" component={TasksScreen} />
     <Tab.Screen name="Home" children={() => <PlaceholderScreen name="Home" />} />
-    <Tab.Screen name="Progress" children={() => <PlaceholderScreen name="Progress" />} />
+    <Tab.Screen name="Progress" component={SkillsScreen} />
     <Tab.Screen name="Clan" children={() => <PlaceholderScreen name="Clan" />} />
     <Tab.Screen name="Profile" children={() => <PlaceholderScreen name="Profile" />} />
   </Tab.Navigator>
@@ -58,6 +60,7 @@ export const AppNavigator = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
+      <Stack.Screen name="SkillDetail" component={SkillDetailScreen} />
       <Stack.Screen
         name="CreateTask"
         options={{

@@ -14,12 +14,13 @@ export const mockProgress: UserProgress = {
     lastActiveDate: '2026-04-11',
   },
   skills: [
-    { id: 'discipline', label: 'Disiplin', icon: '⚔️', xp: 820, level: 5 },
-    { id: 'coding', label: 'Kodlama', icon: '💻', xp: 940, level: 6 },
-    { id: 'focus', label: 'Odak', icon: '🎯', xp: 610, level: 4 },
-    { id: 'health', label: 'Sağlık', icon: '❤️', xp: 430, level: 3 },
-    { id: 'learning', label: 'Öğrenme', icon: '📚', xp: 390, level: 3 },
-    { id: 'mindset', label: 'Zihinsel Güç', icon: '🧠', xp: 280, level: 2 },
+    { id: 'fitness',    label: 'Fitness',    description: 'Enhance your physical strength and endurance.',     icon: '🏋️', xp: 42,  level: 1, currentStreak: 1, longestStreak: 1 },
+    { id: 'focus',      label: 'Focus',      description: 'Improve your concentration and mental clarity.',    icon: '🧠', xp: 40,  level: 1, currentStreak: 1, longestStreak: 1 },
+    { id: 'discipline', label: 'Discipline', description: 'Build self-control and consistent habits.',         icon: '🔥', xp: 40,  level: 1, currentStreak: 1, longestStreak: 1 },
+    { id: 'coding',     label: 'Coding',     description: 'Strengthen your programming and problem-solving.',  icon: '💻', xp: 940, level: 6, currentStreak: 3, longestStreak: 9 },
+    { id: 'health',     label: 'Health',     description: 'Take care of your body and well-being.',            icon: '❤️', xp: 430, level: 3, currentStreak: 0, longestStreak: 5 },
+    { id: 'learning',   label: 'Learning',   description: 'Expand your knowledge and skills continuously.',    icon: '📚', xp: 390, level: 3, currentStreak: 5, longestStreak: 14 },
+    { id: 'mindset',    label: 'Mindset',    description: 'Cultivate a growth-oriented and resilient mindset.', icon: '🧠', xp: 280, level: 2, currentStreak: 0, longestStreak: 3 },
   ],
   recentXPEvents: [
     {

@@ -3,9 +3,12 @@ import type { SkillId } from './task';
 export type Skill = {
   id: SkillId;
   label: string;
+  description: string;
   icon: string;
   xp: number;
   level: number;
+  currentStreak: number;
+  longestStreak: number;
 };
 
 export type XPEvent = {

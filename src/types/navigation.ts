@@ -3,6 +3,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   CreateTask: undefined;
   TaskDetail: { taskId: string; taskType: 'habit' | 'todo' };
+  SkillDetail: { skillId: string };
 };
 
 export type MainTabParamList = {

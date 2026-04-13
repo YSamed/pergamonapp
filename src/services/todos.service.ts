@@ -8,6 +8,10 @@ export const todosService = {
     return _todos.filter((t) => !t.completedAt);
   },
 
+  async getAllTodos(): Promise<Todo[]> {
+    return _todos;
+  },
+
   async getCompletedTodos(): Promise<Todo[]> {
     return _todos.filter((t) => !!t.completedAt);
   },

@@ -20,20 +20,17 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SkillDetail'>;
 const d = colors.dark;
 const XP_PER_LEVEL = 100;
 
-const todayDayIndex = (() => {
-  const day = new Date().getDay();
-  return day === 0 ? 6 : day - 1;
-})();
-
 export const SkillDetailScreen = ({ route, navigation }: Props) => {
   const { skillId } = route.params;
   const [skill, setSkill] = useState<Skill | null>(null);
   const [linkedTasks, setLinkedTasks] = useState<LinkedTask[]>([]);
+  const [completedDates, setCompletedDates] = useState<string[]>([]);
 
   useEffect(() => {
     void Promise.all([
       skillsService.getSkillById(skillId).then(setSkill),
       skillsService.getLinkedTasks(skillId).then(setLinkedTasks),
+      skillsService.getCompletedDates(skillId).then(setCompletedDates),
     ]);
   }, [skillId]);
 
@@ -42,12 +39,6 @@ export const SkillDetailScreen = ({ route, navigation }: Props) => {
   const xpInLevel = skill.xp % XP_PER_LEVEL;
   const xpToNext = XP_PER_LEVEL - xpInLevel;
   const progress = xpInLevel / XP_PER_LEVEL;
-
-  // Weekly activity: mark today if any linked task is completed today
-  const anyCompletedToday = linkedTasks.some((t) => t.isCompleted);
-  const weekActivity = Array.from({ length: 7 }, (_, i) =>
-    (i === todayDayIndex && anyCompletedToday ? 1 : 0) as 0 | 1,
-  );
 
   const handleDelete = () => {
     Alert.alert('Delete Skill', 'Are you sure?', [
@@ -119,7 +110,7 @@ export const SkillDetailScreen = ({ route, navigation }: Props) => {
           </View>
 
           {/* Weekly Activity */}
-          <WeeklyActivity activity={weekActivity} />
+          <WeeklyActivity completedDates={completedDates} />
 
           {/* Linked Tasks */}
           <View style={styles.section}>

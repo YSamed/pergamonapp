@@ -42,10 +42,6 @@ const DIFFICULTY_INFO = {
   hard: { emoji: '😤', label: 'Hard', color: colors.difficultyHard },
 };
 
-const todayDayIndex = (() => {
-  const day = new Date().getDay(); // 0=Sun
-  return day === 0 ? 6 : day - 1;
-})();
 
 export const TaskDetailScreen = ({ route, navigation }: Props) => {
   const { taskId, taskType } = route.params;
@@ -118,10 +114,16 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
   const statusLabel = isFailed ? 'Failed' : isCompleted ? 'Completed' : 'Pending';
   const energyCost = task.difficulty === 'easy' ? 1 : task.difficulty === 'medium' ? 2 : 3;
 
-  const weekActivity = Array.from({ length: 7 }, (_, i) =>
-    (i === todayDayIndex && isCompleted ? 1 : 0) as 0 | 1,
-  );
-  const completedDates = isCompleted && isHabit ? [new Date().toDateString()] : [];
+  const completedDates: string[] = isHabit
+    ? [
+        ...((habit as Habit).completionHistory ?? []),
+        ...((habit as Habit).completedTodayAt
+          ? [new Date().toISOString().slice(0, 10)]
+          : []),
+      ]
+    : (todo as Todo).completedAt && (todo as Todo).completedAt !== 'failed'
+      ? [(todo as Todo).completedAt!.slice(0, 10)]
+      : [];
 
   return (
     <View style={styles.screen}>
@@ -198,7 +200,7 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
           </InfoCard>
 
           {/* Weekly Activity */}
-          <WeeklyActivity activity={weekActivity} completedDates={completedDates} />
+          <WeeklyActivity completedDates={completedDates} />
 
           {/* Skills */}
           <View style={styles.section}>

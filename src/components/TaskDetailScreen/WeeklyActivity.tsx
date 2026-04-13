@@ -1,29 +1,60 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, spacing, radius } from '../../theme';
 import { MonthlyViewModal } from './MonthlyViewModal';
 
 const d = colors.dark;
 
-const DAYS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+const DAY_LABELS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
-const todayDayIndex = (() => {
-  const day = new Date().getDay(); // 0=Sun
-  return day === 0 ? 6 : day - 1; // 0=Mon...6=Sun
-})();
+/** Returns Monday of the week that contains `date` as a new Date */
+function getMondayOf(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun
+  const diff = day === 0 ? -6 : 1 - day; // shift to Mon
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+/** "YYYY-MM-DD" from a Date */
+function toDateStr(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
 
 export type WeeklyActivityProps = {
-  /** 0=not done, 1=done for each day of the week (Mon–Sun) */
-  activity: (0 | 1)[];
-  completedDates?: string[];
+  /** ISO date strings ("YYYY-MM-DD") on which the task was completed */
+  completedDates: string[];
 };
 
-export const WeeklyActivity = ({ activity, completedDates = [] }: WeeklyActivityProps) => {
+export const WeeklyActivity = ({ completedDates }: WeeklyActivityProps) => {
   const [weekOffset, setWeekOffset] = useState(0);
   const [monthViewVisible, setMonthViewVisible] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
 
-  const completionCount = activity.reduce<number>((a, b) => a + b, 0);
+  const completedSet = useMemo(() => new Set(completedDates), [completedDates]);
+
+  // Week days for current offset (Mon–Sun)
+  const { weekDays, weekLabel } = useMemo(() => {
+    const monday = getMondayOf(new Date());
+    monday.setDate(monday.getDate() + weekOffset * 7);
+
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      return d;
+    });
+
+    const label = weekOffset === 0
+      ? 'Current Week'
+      : `${days[0].getDate()}/${days[0].getMonth() + 1} – ${days[6].getDate()}/${days[6].getMonth() + 1}`;
+
+    return { weekDays: days, weekLabel: label };
+  }, [weekOffset]);
+
+  const today = toDateStr(new Date());
+
+  const completionCount = weekDays.filter((d) => completedSet.has(toDateStr(d))).length;
 
   return (
     <View style={styles.container}>
@@ -35,47 +66,40 @@ export const WeeklyActivity = ({ activity, completedDates = [] }: WeeklyActivity
       </View>
 
       <View style={styles.weekGrid}>
-        {DAYS.map((day, i) => (
-          <View key={day} style={styles.dayCol}>
-            <View
-              style={[
-                styles.dayBox,
-                activity[i] ? styles.dayBoxDone : null,
-                i === todayDayIndex ? styles.dayBoxToday : null,
-              ]}
-            >
-              {(activity[i] || i === todayDayIndex) ? (
-                <Text style={styles.dayNum}>{i + 1}</Text>
-              ) : null}
+        {weekDays.map((date, i) => {
+          const dateStr = toDateStr(date);
+          const isDone = completedSet.has(dateStr);
+          const isToday = dateStr === today;
+          return (
+            <View key={i} style={styles.dayCol}>
+              <View
+                style={[
+                  styles.dayBox,
+                  isDone && styles.dayBoxDone,
+                  isToday && !isDone && styles.dayBoxToday,
+                ]}
+              >
+                <Text style={[styles.dayNum, isDone && styles.dayNumDone]}>
+                  {date.getDate()}
+                </Text>
+              </View>
+              <Text style={styles.dayLabel}>{DAY_LABELS[i]}</Text>
             </View>
-            <Text style={styles.dayLabel}>{day}</Text>
-          </View>
-        ))}
+          );
+        })}
       </View>
 
       <View style={styles.weekNav}>
-        <TouchableOpacity
-          style={styles.navBtn}
-          onPress={() => setWeekOffset((p) => p - 1)}
-        >
+        <TouchableOpacity style={styles.navBtn} onPress={() => setWeekOffset((p) => p - 1)}>
           <Text style={styles.navArrow}>{'<'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.currentWeekBtn}
-          onPress={() => setWeekOffset(0)}
-        >
-          <Text style={styles.currentWeekText}>Current Week</Text>
+        <TouchableOpacity style={styles.currentWeekBtn} onPress={() => setWeekOffset(0)}>
+          <Text style={styles.currentWeekText}>{weekLabel}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navBtn}
-          onPress={() => setWeekOffset((p) => p + 1)}
-        >
+        <TouchableOpacity style={styles.navBtn} onPress={() => setWeekOffset((p) => p + 1)}>
           <Text style={styles.navArrow}>{'>'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navBtn}
-          onPress={() => setMonthViewVisible(true)}
-        >
+        <TouchableOpacity style={styles.navBtn} onPress={() => setMonthViewVisible(true)}>
           <Text style={styles.gridIcon}>⊞</Text>
         </TouchableOpacity>
       </View>
@@ -101,30 +125,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  title: {
-    color: d.text,
-    fontSize: 17,
-    fontWeight: '700',
-  },
+  title: { color: d.text, fontSize: 17, fontWeight: '700' },
   badge: {
     backgroundColor: d.primary,
     borderRadius: radius.full,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
   },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  weekGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  dayCol: {
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
+  badgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  weekGrid: { flexDirection: 'row', justifyContent: 'space-between' },
+  dayCol: { alignItems: 'center', gap: spacing.xs },
   dayBox: {
     width: 40,
     height: 40,
@@ -133,24 +143,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dayBoxDone: {
-    backgroundColor: d.primary,
-  },
+  dayBoxDone: { backgroundColor: d.primary },
   dayBoxToday: {
     backgroundColor: d.surface,
     borderWidth: 1.5,
     borderColor: d.primary,
   },
-  dayNum: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  dayLabel: {
-    color: d.textSecondary,
-    fontSize: 11,
-    fontWeight: '500',
-  },
+  dayNum: { color: d.textSecondary, fontSize: 13, fontWeight: '600' },
+  dayNumDone: { color: '#fff' },
+  dayLabel: { color: d.textSecondary, fontSize: 11, fontWeight: '500' },
   weekNav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -165,25 +166,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navArrow: {
-    color: d.text,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  gridIcon: {
-    color: d.primary,
-    fontSize: 16,
-  },
+  navArrow: { color: d.text, fontSize: 14, fontWeight: '700' },
+  gridIcon: { color: d.primary, fontSize: 16 },
   currentWeekBtn: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xs,
     borderRadius: radius.full,
     borderWidth: 1.5,
     borderColor: d.primary,
+    minWidth: 130,
+    alignItems: 'center',
   },
-  currentWeekText: {
-    color: d.primary,
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  currentWeekText: { color: d.primary, fontSize: 13, fontWeight: '600' },
 });

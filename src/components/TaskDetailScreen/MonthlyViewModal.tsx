@@ -39,7 +39,7 @@ export type MonthlyViewModalProps = {
   monthOffset: number;
   onMonthChange: (offset: number) => void;
   onClose: () => void;
-  /** Array of date strings (Date.toDateString()) that were completed */
+  /** Array of "YYYY-MM-DD" date strings that were completed */
   completedDates: string[];
 };
 
@@ -61,7 +61,9 @@ export const MonthlyViewModal = ({
 
   const getCellIntensity = (day: number | null): number => {
     if (!day) return -1;
-    const dateStr = new Date(year, month, day).toDateString();
+    const mm = String(month + 1).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    const dateStr = `${year}-${mm}-${dd}`;
     return completedSet.has(dateStr) ? 4 : 0;
   };
 

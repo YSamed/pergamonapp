@@ -29,6 +29,8 @@ export type Habit = {
   streak: number;
   longestStreak: number;
   completedTodayAt: string | null;
+  /** ISO date strings of past completions e.g. ["2026-04-10", "2026-04-11"] */
+  completionHistory: string[];
   isActive: boolean;
   createdAt: string;
 };

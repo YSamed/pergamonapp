@@ -1,5 +1,12 @@
 import type { Habit } from '../types';
 
+// Helper: today minus N days as "YYYY-MM-DD"
+const daysAgo = (n: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+};
+
 export const mockHabits: Habit[] = [
   {
     id: 'habit-1',
@@ -14,6 +21,7 @@ export const mockHabits: Habit[] = [
     streak: 12,
     longestStreak: 21,
     completedTodayAt: null,
+    completionHistory: Array.from({ length: 12 }, (_, i) => daysAgo(i + 1)),
     isActive: true,
     createdAt: '2025-02-01T08:00:00Z',
   },
@@ -30,6 +38,7 @@ export const mockHabits: Habit[] = [
     streak: 5,
     longestStreak: 14,
     completedTodayAt: null,
+    completionHistory: Array.from({ length: 5 }, (_, i) => daysAgo(i + 1)),
     isActive: true,
     createdAt: '2025-02-10T09:00:00Z',
   },
@@ -46,6 +55,7 @@ export const mockHabits: Habit[] = [
     streak: 3,
     longestStreak: 9,
     completedTodayAt: null,
+    completionHistory: Array.from({ length: 3 }, (_, i) => daysAgo(i + 1)),
     isActive: true,
     createdAt: '2025-03-01T07:00:00Z',
   },
@@ -62,6 +72,7 @@ export const mockHabits: Habit[] = [
     streak: 1,
     longestStreak: 1,
     completedTodayAt: null,
+    completionHistory: [daysAgo(1)],
     isActive: true,
     createdAt: '2026-04-01T07:00:00Z',
   },
@@ -78,6 +89,7 @@ export const mockHabits: Habit[] = [
     streak: 0,
     longestStreak: 3,
     completedTodayAt: null,
+    completionHistory: [daysAgo(3), daysAgo(5), daysAgo(7)],
     isActive: true,
     createdAt: '2026-04-01T07:10:00Z',
   },
@@ -90,10 +102,11 @@ export const mockHabits: Habit[] = [
     xpReward: 8,
     skillIds: ['discipline', 'mindset'],
     frequency: 'weekly',
-    frequencyDays: [1], // Pazartesi
+    frequencyDays: [1],
     streak: 4,
     longestStreak: 4,
     completedTodayAt: null,
+    completionHistory: [daysAgo(7), daysAgo(14), daysAgo(21), daysAgo(28)],
     isActive: true,
     createdAt: '2025-03-10T10:00:00Z',
   },

@@ -22,22 +22,25 @@ export const habitsService = {
   async completeHabit(id: string): Promise<Habit> {
     const index = _habits.findIndex((h) => h.id === id);
     if (index === -1) throw new Error(`Habit not found: ${id}`);
-
+    const today = new Date().toISOString().slice(0, 10);
+    const history = _habits[index].completionHistory ?? [];
     _habits[index] = {
       ..._habits[index],
       completedTodayAt: new Date().toISOString(),
       streak: _habits[index].streak + 1,
+      completionHistory: history.includes(today) ? history : [today, ...history],
     };
     return _habits[index];
   },
 
-  async createHabit(data: Omit<Habit, 'id' | 'createdAt' | 'streak' | 'longestStreak' | 'completedTodayAt'>): Promise<Habit> {
+  async createHabit(data: Omit<Habit, 'id' | 'createdAt' | 'streak' | 'longestStreak' | 'completedTodayAt' | 'completionHistory'>): Promise<Habit> {
     const newHabit: Habit = {
       ...data,
       id: `habit-${Date.now()}`,
       streak: 0,
       longestStreak: 0,
       completedTodayAt: null,
+      completionHistory: [],
       createdAt: new Date().toISOString(),
     };
     _habits.push(newHabit);

@@ -78,4 +78,73 @@ export const skillsService = {
     const all = tasks.flatMap((t) => t.completionHistory);
     return [...new Set(all)];
   },
+
+  /** Aggregate stats for all skills used in SkillStatisticsScreen */
+  async getStatistics(period: 'week' | 'month' | 'allTime'): Promise<SkillStatistics> {
+    const skills = await this.getAllSkills();
+    const allLinked = await Promise.all(
+      skills.map(async (s) => ({
+        skill: s,
+        tasks: await this.getLinkedTasks(s.id),
+      }))
+    );
+
+    const now = new Date();
+    const periodStart = new Date();
+    if (period === 'week') periodStart.setDate(now.getDate() - 7);
+    else if (period === 'month') periodStart.setMonth(now.getMonth() - 1);
+    else periodStart.setFullYear(2000); // all time
+
+    const inPeriod = (dateStr: string) => new Date(dateStr) >= periodStart;
+
+    const skillStats: SkillStatData[] = allLinked.map(({ skill, tasks }) => {
+      const periodDates = tasks
+        .flatMap((t) => t.completionHistory)
+        .filter(inPeriod);
+      const xpInPeriod = tasks.reduce((sum, t) => {
+        const count = t.completionHistory.filter(inPeriod).length;
+        return sum + count * t.xpReward;
+      }, 0);
+      return {
+        skill,
+        xpInPeriod,
+        uniqueDaysActive: [...new Set(periodDates)].length,
+      };
+    });
+
+    const totalXP = skillStats.reduce((s, x) => s + x.xpInPeriod, 0);
+    const avgLevel =
+      skills.length > 0
+        ? skills.reduce((s, sk) => s + sk.level, 0) / skills.length
+        : 0;
+    const totalHistoricalXP = skills.reduce((s, sk) => s + sk.xp, 0);
+
+    // Success rate: completed tasks / total tasks (all time for now)
+    const allTasks = allLinked.flatMap((x) => x.tasks);
+    const completedCount = allTasks.filter((t) => t.isCompleted).length;
+    const totalCount = allTasks.length;
+    const successRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+    return {
+      skillStats,
+      totalXP,
+      avgLevel,
+      totalHistoricalXP,
+      successRate,
+    };
+  },
+};
+
+export type SkillStatData = {
+  skill: import('../types').Skill;
+  xpInPeriod: number;
+  uniqueDaysActive: number;
+};
+
+export type SkillStatistics = {
+  skillStats: SkillStatData[];
+  totalXP: number;
+  avgLevel: number;
+  totalHistoricalXP: number;
+  successRate: number;
 };

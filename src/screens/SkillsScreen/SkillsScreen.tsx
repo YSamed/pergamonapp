@@ -57,7 +57,7 @@ export const SkillsScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {/* View Statistics */}
-          <TouchableOpacity style={styles.statsCard} activeOpacity={0.75}>
+          <TouchableOpacity style={styles.statsCard} activeOpacity={0.75} onPress={() => navigation.navigate('SkillStatistics')}>
             <View style={styles.statsIconWrap}>
               <Text style={styles.statsIcon}>📊</Text>
             </View>

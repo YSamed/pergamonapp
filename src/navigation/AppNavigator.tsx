@@ -8,6 +8,7 @@ import { CreateTaskScreen } from '../screens/CreateTaskScreen';
 import { TaskDetailScreen } from '../screens/TaskDetailScreen';
 import { SkillsScreen } from '../screens/SkillsScreen';
 import { SkillDetailScreen } from '../screens/SkillDetailScreen';
+import { SkillStatisticsScreen } from '../screens/SkillStatisticsScreen';
 import type { MainTabParamList, RootStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -23,7 +24,6 @@ const PlaceholderScreen = ({ name }: { name: string }) => (
 
 const TAB_ICONS: Record<string, string> = {
   Tasks: '✓',
-  Home: '⭐',
   Progress: '📊',
   Clan: '🛡️',
   Profile: '👤',
@@ -48,7 +48,6 @@ const MainTabs = () => (
     })}
   >
     <Tab.Screen name="Tasks" component={TasksScreen} />
-    <Tab.Screen name="Home" children={() => <PlaceholderScreen name="Home" />} />
     <Tab.Screen name="Progress" component={SkillsScreen} />
     <Tab.Screen name="Clan" children={() => <PlaceholderScreen name="Clan" />} />
     <Tab.Screen name="Profile" children={() => <PlaceholderScreen name="Profile" />} />
@@ -61,6 +60,7 @@ export const AppNavigator = () => (
       <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
       <Stack.Screen name="SkillDetail" component={SkillDetailScreen} />
+      <Stack.Screen name="SkillStatistics" component={SkillStatisticsScreen} />
       <Stack.Screen
         name="CreateTask"
         options={{

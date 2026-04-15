@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import * as Notifications from 'expo-notifications';
 import type { RootStackParamList } from '../../types';
 import { colors, spacing, radius } from '../../theme';
 import { habitsService } from '../../services/habits.service';
@@ -24,8 +26,29 @@ import { NewCategoryDialog } from '../../components/TasksScreen/NewCategoryDialo
 import { DeleteCategoryDialog } from '../../components/TasksScreen/DeleteCategoryDialog';
 
 type FilterTab = 'all' | 'habits' | 'todos';
+type ReminderTask = {
+  id: string;
+  title: string;
+  type: 'habit' | 'todo';
+};
 
 const d = colors.dark;
+const MOCK_TASK_DURATION_SECONDS = 3;
+const TASKS_NOTIFICATION_CHANNEL_ID = 'tasks-notifications';
+const FALLBACK_REMINDER_TASK: ReminderTask = {
+  id: 'mock-software-task',
+  title: 'Yazılım',
+  type: 'todo',
+};
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 'habits', name: 'Habits', taskCount: 1 },
@@ -44,9 +67,20 @@ export const TasksScreen = () => {
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [editTarget, setEditTarget] = useState<Category | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [pendingReminderTask, setPendingReminderTask] = useState<ReminderTask | null>(null);
+  const [notificationCardTask, setNotificationCardTask] = useState<ReminderTask | null>(null);
+  const reminderTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     void loadData();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (reminderTimer.current) {
+        clearTimeout(reminderTimer.current);
+      }
+    };
   }, []);
 
   const loadData = async () => {
@@ -76,6 +110,117 @@ export const TasksScreen = () => {
     setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
   };
 
+  const getReminderTask = (): ReminderTask => {
+    const expiredTodo = todos.find((todo) => {
+      if (!todo.dueDate) return false;
+      return new Date(todo.dueDate).getTime() <= Date.now();
+    });
+
+    if (expiredTodo) {
+      return {
+        id: expiredTodo.id,
+        title: expiredTodo.title,
+        type: 'todo',
+      };
+    }
+
+    const activeTodo = todos.find((todo) => !todo.completedAt);
+    if (activeTodo) {
+      return {
+        id: activeTodo.id,
+        title: activeTodo.title,
+        type: 'todo',
+      };
+    }
+
+    const activeHabit = habits.find((habit) => !habit.completedTodayAt);
+    if (!activeHabit) return FALLBACK_REMINDER_TASK;
+
+    return {
+      id: activeHabit.id,
+      title: activeHabit.title,
+      type: 'habit',
+    };
+  };
+
+  const handleNotificationPress = () => {
+    const reminderTask = getReminderTask();
+
+    if (reminderTimer.current) {
+      clearTimeout(reminderTimer.current);
+      reminderTimer.current = null;
+    }
+
+    setPendingReminderTask(null);
+    setNotificationCardTask(null);
+    void showSystemNotification(reminderTask);
+  };
+
+  const showSystemNotification = async (task: ReminderTask) => {
+    try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync(TASKS_NOTIFICATION_CHANNEL_ID, {
+          name: 'Tasks',
+          importance: Notifications.AndroidImportance.HIGH,
+          sound: 'default',
+        });
+      }
+
+      const currentPermissions = await Notifications.getPermissionsAsync();
+      let isGranted = currentPermissions.granted;
+
+      if (!isGranted) {
+        const requestedPermissions = await Notifications.requestPermissionsAsync();
+        isGranted = requestedPermissions.granted;
+      }
+
+      if (!isGranted) {
+        return;
+      }
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: task.title,
+          body: `${task.title} görevinin süresi tamamlandı`,
+          sound: 'default',
+        },
+        trigger: Platform.OS === 'android'
+          ? { channelId: TASKS_NOTIFICATION_CHANNEL_ID }
+          : null,
+      });
+    } catch {
+      // Notification failures should not block the in-app reminder controls.
+    }
+  };
+
+  const handleReminderComplete = async () => {
+    if (!notificationCardTask) return;
+
+    if (reminderTimer.current) {
+      clearTimeout(reminderTimer.current);
+      reminderTimer.current = null;
+    }
+
+    if (notificationCardTask.type === 'habit') {
+      await handleCompleteHabit(notificationCardTask.id);
+    } else {
+      await handleCompleteTodo(notificationCardTask.id);
+    }
+
+    setPendingReminderTask(null);
+    setNotificationCardTask(null);
+  };
+
+  const handleReminderIncomplete = () => {
+    if (reminderTimer.current) {
+      clearTimeout(reminderTimer.current);
+      reminderTimer.current = null;
+    }
+
+    setPendingReminderTask(null);
+    setNotificationCardTask(null);
+  };
+
   const showHabits = filter === 'all' || filter === 'habits';
   const showTodos = filter === 'all' || filter === 'todos';
 
@@ -85,7 +230,18 @@ export const TasksScreen = () => {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerGiftIcon}>🎁</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerGiftIcon}>🎁</Text>
+            <TouchableOpacity
+              style={styles.headerBtn}
+              onPress={handleNotificationPress}
+              activeOpacity={0.75}
+              accessibilityLabel="Notifications"
+              accessibilityRole="button"
+            >
+              <Text style={styles.headerBtnIcon}>🔔</Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.headerTitle}>Tasks</Text>
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.headerBtn}>
@@ -154,6 +310,50 @@ export const TasksScreen = () => {
         <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('CreateTask')}>
           <Text style={styles.fabIcon}>+</Text>
         </TouchableOpacity>
+
+        {pendingReminderTask && !notificationCardTask && (
+          <TouchableOpacity
+            style={styles.pendingReminderPill}
+            onPress={() => showSystemNotification(pendingReminderTask)}
+            activeOpacity={0.82}
+          >
+            <Text style={styles.pendingReminderText}>
+              {pendingReminderTask.title} bildirimi hazırlanıyor...
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {notificationCardTask && (
+          <View style={styles.notificationGlassCard}>
+            <View style={styles.notificationContent}>
+              <TouchableOpacity
+                onPress={() => showSystemNotification(notificationCardTask)}
+                activeOpacity={0.82}
+              >
+                <Text style={styles.notificationMessage}>
+                  {notificationCardTask.title} görevinin süresi tamamlandı
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.notificationActionRow}>
+                <TouchableOpacity
+                  style={[styles.notificationActionBtn, styles.notificationActionBtnPrimary]}
+                  onPress={handleReminderComplete}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.notificationActionPrimaryText}>Tamamladım</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.notificationActionBtn, styles.notificationActionBtnGhost]}
+                  onPress={handleReminderIncomplete}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.notificationActionGhostText}>Tamamlamadım</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
 
       <CategoriesBottomSheet
@@ -254,9 +454,14 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     minHeight: 56,
   },
+  headerLeft: {
+    width: 72,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   headerGiftIcon: {
     fontSize: 22,
-    marginRight: spacing.sm,
   },
   headerTitle: {
     flex: 1,
@@ -264,21 +469,109 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
-    marginRight: 40, // offset for gift icon
   },
   headerRight: {
+    width: 72,
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: spacing.sm,
   },
   headerBtn: {
     width: 32,
     height: 32,
+    borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.04)',
   },
   headerBtnIcon: {
     fontSize: 18,
     color: d.textSecondary,
+  },
+
+  // In-app reminder status
+  pendingReminderPill: {
+    position: 'absolute',
+    top: 76,
+    left: spacing.md,
+    right: spacing.md,
+    minHeight: 48,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: 'rgba(0,0,0,0.78)',
+    zIndex: 20,
+    elevation: 10,
+  },
+  pendingReminderText: {
+    color: d.text,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
+  // Notification glass card
+  notificationGlassCard: {
+    position: 'absolute',
+    top: 76,
+    left: spacing.md,
+    right: spacing.md,
+    minHeight: 116,
+    overflow: 'hidden',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    borderRadius: 30,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(0,0,0,0.88)',
+    shadowColor: '#00C2A0',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
+    elevation: 16,
+    zIndex: 20,
+  },
+  notificationContent: {
+    width: '100%',
+  },
+  notificationMessage: {
+    color: d.text,
+    fontSize: 17,
+    lineHeight: 23,
+    fontWeight: '800',
+  },
+  notificationActionRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  notificationActionBtn: {
+    flex: 1,
+    minHeight: 38,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+  },
+  notificationActionBtnPrimary: {
+    backgroundColor: d.text,
+  },
+  notificationActionBtnGhost: {
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  notificationActionPrimaryText: {
+    color: '#050507',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  notificationActionGhostText: {
+    color: d.text,
+    fontSize: 14,
+    fontWeight: '800',
   },
 
   // Scroll

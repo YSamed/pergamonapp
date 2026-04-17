@@ -1,85 +1,64 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, radius } from '../../theme';
+import React, { useEffect, useRef } from 'react';
+import {
+  Animated,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  type GestureResponderEvent,
+} from 'react-native';
+import { spacing } from '../../theme';
 import type { Todo } from '../../types';
+import { SwipeToDeleteRow } from './SwipeToDeleteRow';
+import LottieView from 'lottie-react-native';
 
 type Props = {
   todo: Todo;
-  onComplete: (id: string) => void;
+  onComplete: (id: string) => void | Promise<void>;
+  onDelete: (id: string) => void | Promise<void>;
   onPress?: (id: string) => void;
 };
 
-const d = colors.dark;
+const tickAnimation = require('../../assets/tick-success.json');
+const AnimatedLottieView = Animated.createAnimatedComponent(LottieView);
 
-const PRIORITY_COLOR: Record<string, string> = {
-  high: colors.priorityHigh,
-  medium: colors.priorityMedium,
-  low: colors.priorityLow,
-};
-
-const SKILL_EMOJI: Record<string, string> = {
-  strength: '💪',
-  focus: '🎯',
-  discipline: '⚔️',
-  coding: '💻',
-  communication: '💬',
-  health: '❤️',
-  learning: '📚',
-  mindset: '🧠',
-  career: '💼',
-  social: '🤝',
-};
-
-export const TodoRow = ({ todo, onComplete, onPress }: Props) => {
+export const TodoRow = ({ todo, onComplete, onDelete, onPress }: Props) => {
   const isCompleted = !!todo.completedAt;
+  const progress = useRef(new Animated.Value(isCompleted ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: isCompleted ? 1 : 0,
+      duration: 320,
+      useNativeDriver: false,
+    }).start();
+  }, [isCompleted, progress]);
+
+  const handleCompletePress = (event: GestureResponderEvent) => {
+    event.stopPropagation?.();
+    void onComplete(todo.id);
+  };
 
   return (
-    <TouchableOpacity
-      style={[styles.row, isCompleted && styles.rowCompleted]}
-      onPress={() => onPress?.(todo.id)}
-      activeOpacity={0.8}
-    >
-      {/* Sol: İkon placeholder */}
-      <View style={styles.iconBox}>
-        <Text style={styles.iconEmoji}>📋</Text>
-      </View>
-
-      {/* Orta */}
-      <View style={styles.middle}>
-        <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={2}>
-          {todo.title}
-        </Text>
-        <View style={styles.tagRow}>
-          {/* XP badge */}
-          <View style={styles.xpBadge}>
-            <Text style={styles.xpText}>💜 +{todo.xpReward}</Text>
-          </View>
-          <View style={styles.xpBadge}>
-            <Text style={styles.xpText}>🔥 +{todo.xpReward}</Text>
-          </View>
-          {/* Skill emojis */}
-          {todo.skillIds.slice(0, 1).map((s) => (
-            <Text key={s} style={styles.skillEmoji}>{SKILL_EMOJI[s] ?? '⭐'}</Text>
-          ))}
-          {todo.skillIds.length > 1 && (
-            <Text style={styles.extraSkills}>+{todo.skillIds.length - 1}</Text>
-          )}
-          {/* Difficulty emoji */}
-          <Text style={styles.skillEmoji}>
-            {todo.difficulty === 'easy' ? '🙂' : todo.difficulty === 'medium' ? '😐' : '😤'}
-          </Text>
-        </View>
-      </View>
-
-      {/* Sağ: Tamamla butonu */}
+    <SwipeToDeleteRow onDelete={() => onDelete(todo.id)}>
       <TouchableOpacity
-        style={[styles.checkBox, isCompleted && styles.checkBoxDone]}
-        onPress={() => !isCompleted && onComplete(todo.id)}
-        activeOpacity={0.7}
+        style={styles.row}
+        onPress={() => onPress?.(todo.id)}
+        activeOpacity={0.8}
       >
-        {isCompleted && <Text style={styles.checkMark}>✓</Text>}
+        <View style={styles.leadingContent}>
+          <TouchableOpacity style={styles.iconBox} onPress={handleCompletePress} activeOpacity={0.8}>
+            <AnimatedLottieView
+              source={tickAnimation}
+              loop={false}
+              progress={progress}
+              style={styles.tickAnimation}
+            />
+          </TouchableOpacity>
+          <Text style={styles.title} numberOfLines={1}>{todo.title}</Text>
+        </View>
       </TouchableOpacity>
-    </TouchableOpacity>
+    </SwipeToDeleteRow>
   );
 };
 
@@ -87,82 +66,40 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: d.surface,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    backgroundColor: '#1F1D25',
+    borderRadius: 30,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: d.cardBorder,
-    gap: spacing.md,
+    borderColor: '#2D2934',
+    gap: spacing.sm,
   },
-  rowCompleted: {
-    opacity: 0.5,
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    backgroundColor: d.surfaceElevated,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconEmoji: {
-    fontSize: 22,
-  },
-  middle: {
+  leadingContent: {
     flex: 1,
-    gap: spacing.xs,
-  },
-  title: {
-    color: d.text,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  titleCompleted: {
-    textDecorationLine: 'line-through',
-    color: d.textMuted,
-  },
-  tagRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
-  xpBadge: {
-    backgroundColor: d.surfaceElevated,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-  },
-  xpText: {
-    color: d.textSecondary,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  skillEmoji: {
-    fontSize: 14,
-  },
-  extraSkills: {
-    color: d.textSecondary,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  checkBox: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.md,
-    borderWidth: 2,
-    borderColor: d.border,
+  iconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#2F2A37',
+    borderWidth: 1,
+    borderColor: '#403848',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  checkBoxDone: {
-    backgroundColor: d.primary,
-    borderColor: d.primary,
+  tickAnimation: {
+    width: 32,
+    height: 32,
   },
-  checkMark: {
-    color: '#fff',
-    fontSize: 16,
+  title: {
+    flex: 1,
+    color: '#F4F3F8',
+    fontSize: 15,
+    lineHeight: 18,
     fontWeight: '700',
   },
 });

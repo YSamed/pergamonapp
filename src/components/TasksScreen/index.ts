@@ -4,3 +4,4 @@ export * from './TodoRow';
 export * from './CategoriesBottomSheet';
 export * from './NewCategoryDialog';
 export * from './DeleteCategoryDialog';
+export * from './SwipeToDeleteRow';

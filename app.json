@@ -10,7 +10,9 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "deploymentTarget": "15.4",
+      "bundleIdentifier": "com.alihasanyzc.pergamonapp"
     },
     "android": {
       "adaptiveIcon": {

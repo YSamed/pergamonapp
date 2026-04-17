@@ -54,10 +54,12 @@ export const habitsService = {
   async uncompleteHabit(id: string): Promise<Habit> {
     const index = _habits.findIndex((h) => h.id === id);
     if (index === -1) throw new Error(`Habit not found: ${id}`);
+    const today = new Date().toISOString().slice(0, 10);
     _habits[index] = {
       ..._habits[index],
       completedTodayAt: null,
       streak: Math.max(0, _habits[index].streak - 1),
+      completionHistory: (_habits[index].completionHistory ?? []).filter((date) => date !== today),
     };
     return _habits[index];
   },

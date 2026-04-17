@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Notifications from 'expo-notifications';
+import { Ionicons } from '@expo/vector-icons';
 import type { RootStackParamList } from '../../types';
 import { colors, spacing, radius } from '../../theme';
 import { habitsService } from '../../services/habits.service';
@@ -62,6 +63,7 @@ export const TasksScreen = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<FilterTab>('all');
+  const [showPriorityTasks, setShowPriorityTasks] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [showNewCategory, setShowNewCategory] = useState(false);
@@ -88,7 +90,7 @@ export const TasksScreen = () => {
       profileService.getProfile(),
       progressService.getUserProgress(),
       habitsService.getTodayHabits(),
-      todosService.getTodos(),
+      todosService.getAllTodos(),
     ]);
     setUser(u);
     setProgress(p);
@@ -101,14 +103,53 @@ export const TasksScreen = () => {
   };
 
   const handleCompleteHabit = async (id: string) => {
-    const updated = await habitsService.completeHabit(id);
+    const targetHabit = habits.find((habit) => habit.id === id);
+    if (!targetHabit) return;
+
+    const updated = targetHabit.completedTodayAt
+      ? await habitsService.uncompleteHabit(id)
+      : await habitsService.completeHabit(id);
+
     setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
   };
 
   const handleCompleteTodo = async (id: string) => {
-    const updated = await todosService.completeTodo(id);
+    const targetTodo = todos.find((todo) => todo.id === id);
+    if (!targetTodo) return;
+
+    const updated = targetTodo.completedAt
+      ? await todosService.uncompleteTodo(id)
+      : await todosService.completeTodo(id);
+
     setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
   };
+
+  const handleDeleteHabit = async (id: string) => {
+    await habitsService.deleteHabit(id);
+    setHabits((prev) => prev.filter((habit) => habit.id !== id));
+  };
+
+  const handleDeleteTodo = async (id: string) => {
+    await todosService.deleteTodo(id);
+    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+  };
+
+  const getTodoPriorityScore = (todo: Todo) => {
+    const isOverdue = todo.dueDate ? new Date(todo.dueDate).getTime() <= Date.now() : false;
+    if (isOverdue) return 0;
+    if (todo.priority === 'high') return 1;
+    if (todo.priority === 'medium') return 2;
+    return 3;
+  };
+
+  const prioritizedTodos = [...todos].sort((a, b) => {
+    const scoreDiff = getTodoPriorityScore(a) - getTodoPriorityScore(b);
+    if (scoreDiff !== 0) return scoreDiff;
+
+    const aDue = a.dueDate ? new Date(a.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
+    const bDue = b.dueDate ? new Date(b.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
+    return aDue - bDue;
+  });
 
   const getReminderTask = (): ReminderTask => {
     const expiredTodo = todos.find((todo) => {
@@ -221,8 +262,10 @@ export const TasksScreen = () => {
     setNotificationCardTask(null);
   };
 
-  const showHabits = filter === 'all' || filter === 'habits';
-  const showTodos = filter === 'all' || filter === 'todos';
+  const visibleHabits = showPriorityTasks ? [] : habits;
+  const visibleTodos = showPriorityTasks ? prioritizedTodos : todos;
+  const showHabits = !showPriorityTasks && (filter === 'all' || filter === 'habits');
+  const showTodos = showPriorityTasks || filter === 'all' || filter === 'todos';
 
   return (
     <View style={styles.screen}>
@@ -231,24 +274,37 @@ export const TasksScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerGiftIcon}>🎁</Text>
             <TouchableOpacity
-              style={styles.headerBtn}
+              style={styles.headerActionBtn}
+              activeOpacity={0.78}
+              accessibilityLabel="Search"
+              accessibilityRole="button"
+            >
+              <View style={styles.searchGlyph}>
+                <View style={styles.searchGlyphCircle} />
+                <View style={styles.searchGlyphHandle} />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerIconBtn}
               onPress={handleNotificationPress}
               activeOpacity={0.75}
               accessibilityLabel="Notifications"
               accessibilityRole="button"
             >
-              <Text style={styles.headerBtnIcon}>🔔</Text>
+              <Ionicons name="notifications" size={24} color="white" />
             </TouchableOpacity>
           </View>
           <Text style={styles.headerTitle}>Tasks</Text>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.headerBtn}>
-              <Text style={styles.headerBtnIcon}>🕐</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.headerBtn} onPress={() => setShowCategories(true)}>
-              <Text style={styles.headerBtnIcon}>☰</Text>
+            <TouchableOpacity
+              style={styles.headerCreateBtn}
+              onPress={() => navigation.navigate('CreateTask')}
+              activeOpacity={0.78}
+              accessibilityLabel="Create task"
+              accessibilityRole="button"
+            >
+              <Text style={styles.headerCreateBtnIcon}>+</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -260,56 +316,93 @@ export const TasksScreen = () => {
         >
           {/* User Progress Card */}
           {user && progress && (
-            <UserProgressCard user={user} progress={progress} />
+            <UserProgressCard user={user} progress={progress} habits={habits} todos={todos} />
           )}
 
           {/* Filter Tabs */}
           <View style={styles.filterRow}>
-            <FilterButton label="All" value="all" current={filter} onPress={setFilter} />
-            <FilterButton label="Habits" value="habits" current={filter} onPress={setFilter} />
-            <FilterButton label="To Do" value="todos" current={filter} onPress={setFilter} />
-            <TouchableOpacity style={styles.addTabBtn}>
-              <Text style={styles.addTabBtnText}>+ Add</Text>
+            <FilterButton
+              label="All"
+              value="all"
+              current={filter}
+              onPress={(value) => {
+                setShowPriorityTasks(false);
+                setFilter(value);
+              }}
+            />
+            <FilterButton
+              label="Habits"
+              value="habits"
+              current={filter}
+              onPress={(value) => {
+                setShowPriorityTasks(false);
+                setFilter(value);
+              }}
+            />
+            <FilterButton
+              label="To Do"
+              value="todos"
+              current={filter}
+              onPress={(value) => {
+                setShowPriorityTasks(false);
+                setFilter(value);
+              }}
+            />
+            <TouchableOpacity
+              style={[styles.addTabBtn, showPriorityTasks && styles.addTabBtnActive]}
+              onPress={() => setShowPriorityTasks((prev) => !prev)}
+              activeOpacity={0.75}
+            >
+              <Text style={[styles.addTabBtnText, showPriorityTasks && styles.addTabBtnTextActive]}>
+                Priority
+              </Text>
             </TouchableOpacity>
           </View>
 
           {/* Habits Section */}
-          {showHabits && habits.length > 0 && (
+          {showHabits && visibleHabits.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Habits</Text>
                 <View style={styles.sectionBadge}>
-                  <Text style={styles.sectionBadgeText}>{habits.length}</Text>
+                  <Text style={styles.sectionBadgeText}>{visibleHabits.length}</Text>
                 </View>
               </View>
-              {habits.map((habit) => (
-                <HabitRow key={habit.id} habit={habit} onComplete={handleCompleteHabit} onPress={(id) => handleTaskPress(id, 'habit')} />
+              {visibleHabits.map((habit) => (
+                <HabitRow
+                  key={habit.id}
+                  habit={habit}
+                  onComplete={handleCompleteHabit}
+                  onDelete={handleDeleteHabit}
+                  onPress={(id) => handleTaskPress(id, 'habit')}
+                />
               ))}
             </View>
           )}
 
           {/* To Do Section */}
-          {showTodos && todos.length > 0 && (
+          {showTodos && visibleTodos.length > 0 && (
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>To Do</Text>
+                <Text style={styles.sectionTitle}>{showPriorityTasks ? 'Priority Tasks' : 'To Do'}</Text>
                 <View style={styles.sectionBadge}>
-                  <Text style={styles.sectionBadgeText}>{todos.length}</Text>
+                  <Text style={styles.sectionBadgeText}>{visibleTodos.length}</Text>
                 </View>
               </View>
-              {todos.map((todo) => (
-                <TodoRow key={todo.id} todo={todo} onComplete={handleCompleteTodo} onPress={(id) => handleTaskPress(id, 'todo')} />
+              {visibleTodos.map((todo) => (
+                <TodoRow
+                  key={todo.id}
+                  todo={todo}
+                  onComplete={handleCompleteTodo}
+                  onDelete={handleDeleteTodo}
+                  onPress={(id) => handleTaskPress(id, 'todo')}
+                />
               ))}
             </View>
           )}
 
           <View style={styles.bottomPad} />
         </ScrollView>
-
-        {/* Floating Add Button */}
-        <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('CreateTask')}>
-          <Text style={styles.fabIcon}>+</Text>
-        </TouchableOpacity>
 
         {pendingReminderTask && !notificationCardTask && (
           <TouchableOpacity
@@ -455,13 +548,57 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   headerLeft: {
-    width: 72,
+    width: 88,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
   },
-  headerGiftIcon: {
-    fontSize: 22,
+  headerActionBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  searchGlyph: {
+    width: 22,
+    height: 22,
+    position: 'relative',
+  },
+  searchGlyphCircle: {
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    width: 15,
+    height: 15,
+    borderRadius: radius.full,
+    borderWidth: 2.5,
+    borderColor: d.text,
+  },
+  searchGlyphHandle: {
+    position: 'absolute',
+    width: 9,
+    height: 3.5,
+    borderRadius: radius.full,
+    backgroundColor: d.text,
+    right: 0,
+    bottom: 1,
+    transform: [{ rotate: '45deg' }],
+  },
+  headerIconBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
+  headerIconBtnIcon: {
+    fontSize: 18,
+    color: d.textSecondary,
   },
   headerTitle: {
     flex: 1,
@@ -474,19 +611,22 @@ const styles = StyleSheet.create({
     width: 72,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: spacing.sm,
   },
-  headerBtn: {
-    width: 32,
-    height: 32,
+  headerCreateBtn: {
+    width: 40,
+    height: 40,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  headerBtnIcon: {
-    fontSize: 18,
-    color: d.textSecondary,
+  headerCreateBtnIcon: {
+    fontSize: 28,
+    lineHeight: 28,
+    color: d.text,
+    fontWeight: '300',
   },
 
   // In-app reminder status
@@ -620,10 +760,18 @@ const styles = StyleSheet.create({
     borderColor: d.text,
     borderStyle: 'dashed',
   },
+  addTabBtnActive: {
+    backgroundColor: '#8B5CF6',
+    borderColor: '#8B5CF6',
+    borderStyle: 'solid',
+  },
   addTabBtnText: {
     color: d.text,
     fontSize: 14,
     fontWeight: '600',
+  },
+  addTabBtnTextActive: {
+    color: '#050507',
   },
 
   // Section
@@ -654,27 +802,6 @@ const styles = StyleSheet.create({
     color: d.textSecondary,
     fontSize: 12,
     fontWeight: '700',
-  },
-
-  // FAB
-  fab: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: spacing.lg,
-    width: 52,
-    height: 52,
-    borderRadius: radius.full,
-    backgroundColor: d.surface,
-    borderWidth: 1,
-    borderColor: d.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabIcon: {
-    color: d.text,
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: '300',
   },
 
   bottomPad: {

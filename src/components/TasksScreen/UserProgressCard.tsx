@@ -1,69 +1,104 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { colors, spacing, radius } from '../../theme';
-import type { UserProgress, User } from '../../types';
+import type { UserProgress, User, Habit, Todo } from '../../types';
 
 type Props = {
   user: User;
   progress: UserProgress;
+  habits: Habit[];
+  todos: Todo[];
 };
 
 const d = colors.dark;
+const avatarImage = require('../../assets/icons/iconn.png');
+const DISPLAY_MAX = 50;
+const HEALTH_MAX = 100;
 
-export const UserProgressCard = ({ user, progress }: Props) => {
-  const xpPercent = Math.min(
-    ((progress.user.totalXP % 100) / 100) * 100,
-    100,
-  );
-  const streakPercent = Math.min((progress.streak.currentStreak / 100) * 100, 100);
+export const UserProgressCard = ({ user, progress, habits, todos }: Props) => {
+  const completedHabits = habits.filter((habit) => !!habit.completedTodayAt).length;
+  const totalHabits = habits.length;
+  const completedTodos = todos.filter((todo) => !!todo.completedAt).length;
+  const totalTodos = todos.length;
+  const completedTotal = completedHabits + completedTodos;
+  const totalTasks = totalHabits + totalTodos;
+
+  const habitsPercent = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
+  const todosPercent = totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
+  const totalPercent = totalTasks > 0 ? (completedTotal / totalTasks) * 100 : 0;
+
+  const habitsDisplayValue = Math.round((habitsPercent / 100) * DISPLAY_MAX);
+  const todosDisplayValue = Math.round((todosPercent / 100) * DISPLAY_MAX);
+  const healthDisplayValue = Math.round((totalPercent / 100) * HEALTH_MAX);
 
   return (
     <View style={styles.card}>
-      {/* Sol: Avatar + İsim */}
-      <View style={styles.left}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarEmoji}>🧑‍💻</Text>
+      <View style={styles.leftColumn}>
+        <View style={styles.avatarCard}>
+          <View style={styles.avatarHorizon} />
+          <Image source={avatarImage} style={styles.avatarImage} resizeMode="contain" />
         </View>
-        <View style={styles.nameBlock}>
-          <Text style={styles.displayName}>{user.displayName}</Text>
-          <View style={styles.heartRow}>
-            <Text style={styles.heartIcon}>❤️</Text>
-            <Text style={styles.heartValue}>100/100</Text>
-          </View>
+        <View style={styles.levelPill}>
+          <Text style={styles.levelPillText}>Lvl {user.level}</Text>
         </View>
       </View>
 
-      {/* Sağ: Level + Barlar */}
-      <View style={styles.right}>
-        {/* Level satırı */}
-        <View style={styles.levelRow}>
-          <Text style={styles.levelLabel}>Lvl {user.level}</Text>
-          <Text style={styles.levelIcon}>🛡️</Text>
-          <Text style={styles.levelArrow}>→</Text>
-          <Text style={styles.levelLabel}>Lvl {user.level + 1}</Text>
-          <Text style={styles.levelIcon}>🛡️</Text>
-        </View>
-
-        {/* XP Bar */}
-        <View style={styles.barRow}>
-          <Text style={styles.barIcon}>⚡</Text>
-          <View style={styles.barTrack}>
-            <View style={[styles.barFill, styles.xpFill, { width: `${xpPercent}%` }]} />
+      <View style={styles.statsColumn}>
+        <View style={styles.statRow}>
+          <View style={[styles.statIcon, styles.hpIcon]}>
+            <View style={styles.statIconInner} />
           </View>
-          <Text style={styles.barPercent}>{Math.round(xpPercent)}%</Text>
-        </View>
-
-        {/* Streak Bar */}
-        <View style={styles.barRow}>
-          <Text style={styles.barIcon}>⚡</Text>
-          <View style={styles.barTrack}>
-            <View style={[styles.barFill, styles.streakFill, { width: `${streakPercent}%` }]} />
+          <View style={styles.statContent}>
+            <View style={styles.statTrack}>
+              <View style={[styles.statFill, styles.hpFill, { width: `${habitsPercent}%` }]} />
+            </View>
+            <View style={styles.statMetaRow}>
+              <Text style={styles.hpLabel}>HT</Text>
+              <Text style={styles.hpValue}>{habitsDisplayValue} / {DISPLAY_MAX}</Text>
+            </View>
           </View>
-          <Text style={styles.barPercent}>{streakPercent.toFixed(0)}%</Text>
         </View>
 
-        {/* Settings icon */}
-        <Text style={styles.settingsIcon}>⚙️</Text>
+        <View style={styles.statRow}>
+          <View style={[styles.statIcon, styles.expIcon]}>
+            <View style={styles.statIconInner} />
+          </View>
+          <View style={styles.statContent}>
+            <View style={styles.statTrack}>
+              <View style={[styles.statFill, styles.expFill, { width: `${todosPercent}%` }]} />
+            </View>
+            <View style={styles.statMetaRow}>
+              <Text style={styles.expLabel}>TD</Text>
+              <Text style={styles.expValue}>{todosDisplayValue} / {DISPLAY_MAX}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.statRow}>
+          <View style={[styles.statIcon, styles.mpIcon]}>
+            <View style={styles.statIconInner} />
+          </View>
+          <View style={styles.statContent}>
+            <View style={styles.statTrack}>
+              <View style={[styles.statFill, styles.mpFill, { width: `${totalPercent}%` }]} />
+            </View>
+            <View style={styles.statMetaRow}>
+              <Text style={styles.mpLabel}>Health</Text>
+              <Text style={styles.mpValue}>{healthDisplayValue} / {HEALTH_MAX}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.currencyPill}>
+          <View style={styles.currencyItem}>
+            <Text style={styles.gemIcon}>💎</Text>
+            <Text style={styles.gemValue}>0</Text>
+          </View>
+          <View style={styles.currencyItem}>
+            <Text style={styles.coinIcon}>🪙</Text>
+            <Text style={styles.coinValue}>0</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -72,111 +107,193 @@ export const UserProgressCard = ({ user, progress }: Props) => {
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: d.surface,
-    borderRadius: radius.lg,
-    padding: spacing.md,
+    backgroundColor: d.background,
+    borderRadius: radius.xl,
+    paddingHorizontal: spacing.sm,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
     marginHorizontal: spacing.md,
     marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: d.cardBorder,
     gap: spacing.md,
   },
-  left: {
-    alignItems: 'center',
-    gap: spacing.sm,
+  leftColumn: {
+    width: 98,
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
   },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.lg,
-    backgroundColor: d.surfaceElevated,
+  avatarCard: {
+    width: 92,
+    height: 92,
+    borderRadius: 20,
+    backgroundColor: '#B9AAEA',
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: d.primary,
+    position: 'relative',
   },
-  avatarEmoji: {
-    fontSize: 32,
+  avatarHorizon: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 30,
+    backgroundColor: '#A48DE8',
   },
-  nameBlock: {
-    alignItems: 'center',
-    gap: spacing.xxs,
+  avatarImage: {
+    width: 72,
+    height: 72,
   },
-  displayName: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  heartRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xxs,
-  },
-  heartIcon: {
-    fontSize: 11,
-  },
-  heartValue: {
-    color: d.textSecondary,
-    fontSize: 11,
-  },
-  right: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  levelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.xs,
-  },
-  levelLabel: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  levelIcon: {
-    fontSize: 13,
-  },
-  levelArrow: {
-    color: d.textSecondary,
-    fontSize: 12,
-  },
-  barRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  barIcon: {
-    fontSize: 12,
-    width: 16,
-    textAlign: 'center',
-  },
-  barTrack: {
-    flex: 1,
-    height: 8,
+  levelPill: {
+    marginTop: spacing.sm,
+    minWidth: 66,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.full,
     backgroundColor: d.surfaceElevated,
+  },
+  levelPillText: {
+    color: '#F1F0FA',
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '800',
+  },
+  statsColumn: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingTop: spacing.xxs,
+    minWidth: 0,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  statIcon: {
+    width: 13,
+    height: 13,
+    marginTop: 2,
+    transform: [{ rotate: '45deg' }],
+    borderRadius: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statIconInner: {
+    width: 6,
+    height: 6,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.24)',
+  },
+  hpIcon: {
+    backgroundColor: '#184769',
+    shadowColor: '#3099D1',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  expIcon: {
+    backgroundColor: '#A8650B',
+    shadowColor: '#F5B240',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  mpIcon: {
+    backgroundColor: '#8F2F48',
+    shadowColor: '#FF5965',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  statContent: {
+    flex: 1,
+  },
+  statTrack: {
+    height: 11,
+    backgroundColor: '#201C28',
     borderRadius: radius.full,
     overflow: 'hidden',
+    marginBottom: 6,
   },
-  barFill: {
+  statFill: {
     height: '100%',
     borderRadius: radius.full,
   },
-  xpFill: {
-    backgroundColor: d.xpBar,
+  hpFill: {
+    backgroundColor: '#2976AA',
   },
-  streakFill: {
-    backgroundColor: d.streakBar,
+  expFill: {
+    backgroundColor: '#F0C674',
   },
-  barPercent: {
-    color: d.textSecondary,
+  mpFill: {
+    backgroundColor: '#FF5C61',
+  },
+  statMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    minWidth: 0,
+  },
+  hpLabel: {
+    color: '#61778C',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  hpValue: {
+    color: '#61778C',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  expLabel: {
+    color: '#FFE1AE',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  expValue: {
+    color: '#FFE1AE',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  mpLabel: {
+    color: '#FF9CA3',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  mpValue: {
+    color: '#FF9CA3',
     fontSize: 11,
-    width: 30,
+    fontWeight: '700',
+    flexShrink: 1,
     textAlign: 'right',
   },
-  settingsIcon: {
+  currencyPill: {
     alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: d.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    marginTop: spacing.xxs,
+  },
+  currencyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  gemIcon: {
+    fontSize: 18,
+  },
+  gemValue: {
+    color: '#39D6A0',
     fontSize: 14,
-    marginTop: spacing.xs,
+    fontWeight: '800',
+  },
+  coinIcon: {
+    fontSize: 18,
+  },
+  coinValue: {
+    color: '#FFB33A',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

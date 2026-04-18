@@ -81,14 +81,14 @@ export const ClanScreen = () => {
                 onPress={() => setSheetMode('create')}
                 activeOpacity={0.86}
               >
-                <Text style={styles.primaryButtonText}>Klan Olustur</Text>
+                <Text style={styles.primaryButtonText}>Klan Oluştur</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={() => setSheetMode('join')}
                 activeOpacity={0.86}
               >
-                <Text style={styles.secondaryButtonText}>Klana Katil</Text>
+                <Text style={styles.secondaryButtonText}>Klana Katıl</Text>
               </TouchableOpacity>
             </View>
 
@@ -121,10 +121,10 @@ export const ClanScreen = () => {
                   </TouchableOpacity>
                 </View>
 
-                <Text style={styles.scoreLabel}>Gunluk skor</Text>
+                <Text style={styles.scoreLabel}>Günlük skor</Text>
                 <Text style={styles.scoreValue}>{dashboard.dailyScore}</Text>
                 <View style={styles.progressHeader}>
-                  <Text style={styles.progressTitle}>Haftalik hedef</Text>
+                  <Text style={styles.progressTitle}>Haftalık hedef</Text>
                   <Text style={styles.progressValue}>
                     {dashboard.weeklyCurrent} / {dashboard.weeklyTarget}
                   </Text>
@@ -135,7 +135,7 @@ export const ClanScreen = () => {
                 <Text style={styles.progressPercent}>%{Math.round(progress * 100)} ilerleme</Text>
               </View>
 
-              <SectionCard title="Uyeler">
+              <SectionCard title="Üyeler">
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -160,7 +160,7 @@ export const ClanScreen = () => {
                 </View>
               </SectionCard>
 
-              <SectionCard title="Lig / Siralama">
+              <SectionCard title="Lig / Sıralama">
                 <View style={styles.listColumn}>
                   {dashboard.leaderboard.map((entry) => (
                     <LeaderboardRow key={entry.id} entry={entry} />
@@ -189,26 +189,26 @@ export const ClanScreen = () => {
               <View style={styles.sheetHandle} />
               {sheetMode === 'create' ? (
                 <>
-                  <Text style={styles.sheetTitle}>Klan Olustur</Text>
+                  <Text style={styles.sheetTitle}>Klan Oluştur</Text>
                   <Text style={styles.sheetSubtitle}>
-                    Kendi ekibini kur ve birlikte hedeflere ulas
+                    Kendi ekibini kur ve birlikte hedeflere ulaş
                   </Text>
 
                   <LabeledInput
-                    label="Klan Adi"
+                    label="Klan Adı"
                     value={clanName}
                     onChangeText={setClanName}
                     placeholder="Disiplin Ekibi"
                   />
                   <LabeledInput
-                    label="Aciklama"
+                    label="Açıklama"
                     value={description}
                     onChangeText={setDescription}
-                    placeholder="Kisa bir klan aciklamasi"
+                    placeholder="Kısa bir klan açıklaması"
                     multiline
                   />
 
-                  <Text style={styles.fieldLabel}>Maksimum Uye</Text>
+                  <Text style={styles.fieldLabel}>Maksimum Üye</Text>
                   <View style={styles.segmentRow}>
                     {MEMBER_LIMITS.map((limit) => {
                       const active = memberLimit === limit;
@@ -230,14 +230,14 @@ export const ClanScreen = () => {
                   <Text style={styles.fieldLabel}>Gizlilik</Text>
                   <View style={styles.privacyStack}>
                     <PrivacyCard
-                      title="Acik"
-                      subtitle="Herkes katilabilir"
+                      title="Açık"
+                      subtitle="Herkes katılabilir"
                       active={privacy === 'open'}
                       onPress={() => setPrivacy('open')}
                     />
                     <PrivacyCard
                       title="Davetli"
-                      subtitle="Invite code ile giris"
+                      subtitle="Invite code ile giriş"
                       active={privacy === 'invite'}
                       onPress={() => setPrivacy('invite')}
                     />
@@ -253,17 +253,17 @@ export const ClanScreen = () => {
                     activeOpacity={0.86}
                     disabled={!canCreate}
                   >
-                    <Text style={styles.primaryButtonText}>Klani Olustur</Text>
+                    <Text style={styles.primaryButtonText}>Klanı Oluştur</Text>
                   </TouchableOpacity>
 
                   <View style={styles.sheetNotes}>
                     <Text style={styles.sheetNote}>Klan kurmak sorumluluk gerektirir</Text>
-                    <Text style={styles.sheetNote}>Aktif kalmazsan klanin geriler</Text>
+                    <Text style={styles.sheetNote}>Aktif kalmazsan klanın geriler</Text>
                   </View>
                 </>
               ) : (
                 <>
-                  <Text style={styles.sheetTitle}>Klana Katil</Text>
+                  <Text style={styles.sheetTitle}>Klana Katıl</Text>
                   <Text style={styles.sheetSubtitle}>
                     Davet kodunu gir ve dogrudan ekibe dahil ol
                   </Text>
@@ -285,7 +285,7 @@ export const ClanScreen = () => {
                     activeOpacity={0.86}
                     disabled={!canJoin}
                   >
-                    <Text style={styles.primaryButtonText}>Katil</Text>
+                    <Text style={styles.primaryButtonText}>Katıl</Text>
                   </TouchableOpacity>
                 </>
               )}

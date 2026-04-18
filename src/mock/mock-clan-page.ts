@@ -26,10 +26,10 @@ export type ClanLeaderboardEntry = {
 
 export const mockClanPage = {
   emptyState: {
-    title: 'Bir Klanin Yok',
-    description: 'Arkadaslarinla birlikte habit yap, birbirinizi motive edin',
+    title: 'Bir Klanın Yok',
+    description: 'Arkadaşlarınla birlikte habit yap, birbirinizi motive edin',
     infoLines: [
-      'Klanlar haftalik liglerde yarisir',
+      'Klanlar haftalık liglerde yarışır',
       'Birlikte hedef belirle, birlikte kazan',
     ],
   },
@@ -40,8 +40,8 @@ export const mockClanPage = {
     dailyScore: 248,
     weeklyCurrent: 240,
     weeklyTarget: 300,
-    pressureTitle: 'Bugun 5 kisi tamamladi, 2 kisi tamamlamadi',
-    pressureSubtitle: 'Sen haric herkes yapti',
+    pressureTitle: 'Bugün 5 kişi tamamladı, 2 kişi tamamlamadı',
+    pressureSubtitle: 'Sen hariç herkes yaptı',
     members: [
       { id: 'm1', name: 'Ali', avatar: 'A', color: '#0F766E', status: 'done', isCurrentUser: true },
       { id: 'm2', name: 'Ayse', avatar: 'AY', color: '#2563EB', status: 'done' },
@@ -54,26 +54,26 @@ export const mockClanPage = {
       {
         id: 'a1',
         icon: '🔥',
-        title: 'Ali 3 habit tamamladi',
-        subtitle: 'Bugun 42 XP kazandi',
+        title: 'Ali 3 habit tamamladı',
+        subtitle: 'Bugün 42 XP kazandı',
       },
       {
         id: 'a2',
         icon: '🚀',
-        title: 'Ayse 7 gunluk streak yapti',
-        subtitle: 'Takim momentumu yukseliyor',
+        title: 'Ayşe 7 günlük streak yaptı',
+        subtitle: 'Takım momentumu yükseliyor',
       },
       {
         id: 'a3',
         icon: '🏅',
-        title: 'Burak bonus gorevi bitirdi',
-        subtitle: 'Lig puanina +18 katki',
+        title: 'Burak bonus görevi bitirdi',
+        subtitle: 'Lig puanına +18 katkı',
       },
     ] as ClanPageActivity[],
     leaderboard: [
       { id: 'l1', rank: 1, name: 'Sabah Ekibi', score: 312 },
       { id: 'l2', rank: 2, name: 'Disiplin Ekibi', score: 240, isCurrentClan: true },
-      { id: 'l3', rank: 3, name: 'Odak Birligi', score: 218 },
+      { id: 'l3', rank: 3, name: 'Odak Birliği', score: 218 },
     ] as ClanLeaderboardEntry[],
   },
 };

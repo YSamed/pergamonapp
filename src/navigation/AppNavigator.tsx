@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+  BottomTabBarProps,
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,7 +21,7 @@ import type { MainTabParamList, RootStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
-const d = colors.dark;
+const d = colors;
 
 const PlaceholderScreen = ({ name }: { name: string }) => (
   <View style={styles.placeholder}>
@@ -75,7 +78,11 @@ const GlassTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
               },
             ]}
           >
-            <BlurView intensity={40} tint="light" style={styles.activePillBlur} />
+            <BlurView
+              intensity={40}
+              tint="light"
+              style={styles.activePillBlur}
+            />
             <View style={styles.activePillOverlay} />
           </Animated.View>
         ) : null}
@@ -145,7 +152,10 @@ const MainTabs = () => (
     <Tab.Screen name="Progress" component={SkillsScreen} />
     <Tab.Screen name="Community" component={CommunityScreen} />
     <Tab.Screen name="Clan" component={ClanScreen} />
-    <Tab.Screen name="Profile" children={() => <PlaceholderScreen name="Profile" />} />
+    <Tab.Screen
+      name="Profile"
+      children={() => <PlaceholderScreen name="Profile" />}
+    />
   </Tab.Navigator>
 );
 
@@ -164,9 +174,7 @@ export const AppNavigator = () => (
         }}
       >
         {({ navigation }) => (
-          <CreateTaskScreen
-            onClose={() => navigation.goBack()}
-          />
+          <CreateTaskScreen onClose={() => navigation.goBack()} />
         )}
       </Stack.Screen>
     </Stack.Navigator>

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { colors } from '../../theme';
 import {
   Animated,
   View,
@@ -66,12 +67,12 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F1D25',
+    backgroundColor: 'colors.surface',
     borderRadius: 30,
     paddingHorizontal: spacing.lg,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#2D2934',
+    borderColor: 'colors.border',
     gap: spacing.sm,
   },
   leadingContent: {
@@ -84,9 +85,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#2F2A37',
+    backgroundColor: 'colors.surfaceElevated',
     borderWidth: 1,
-    borderColor: '#403848',
+    borderColor: 'colors.border',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    color: '#F4F3F8',
+    color: 'colors.text',
     fontSize: 15,
     lineHeight: 18,
     fontWeight: '700',

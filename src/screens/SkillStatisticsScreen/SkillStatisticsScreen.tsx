@@ -10,13 +10,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Polygon, Line, Circle, Text as SvgText } from 'react-native-svg';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../types';
-import { skillsService, type SkillStatistics } from '../../services/skills.service';
+import {
+  skillsService,
+  type SkillStatistics,
+} from '../../services/skills.service';
 import { colors, spacing, radius } from '../../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SkillStatistics'>;
 type Period = 'week' | 'month' | 'allTime';
 
-const d = colors.dark;
+const d = colors;
 const CHART_SIZE = 260;
 const CENTER = CHART_SIZE / 2;
 const MAX_RADIUS = 90;
@@ -24,7 +27,13 @@ const LEVELS = 5;
 
 // ── Radar Chart ──────────────────────────────────────────────────────────────
 
-function radarPoints(values: number[], maxVal: number, cx: number, cy: number, r: number) {
+function radarPoints(
+  values: number[],
+  maxVal: number,
+  cx: number,
+  cy: number,
+  r: number,
+) {
   const n = values.length;
   return values.map((v, i) => {
     const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
@@ -211,14 +220,19 @@ export const SkillStatisticsScreen = ({ navigation }: Props) => {
     setStats(data);
   }, [period]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   return (
     <View style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => navigation.goBack()}
+          >
             <Text style={styles.headerIcon}>{'<'}</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Skills Statistics</Text>
@@ -239,7 +253,12 @@ export const SkillStatisticsScreen = ({ navigation }: Props) => {
                 onPress={() => setPeriod(p.key)}
                 activeOpacity={0.75}
               >
-                <Text style={[styles.tabText, period === p.key && styles.tabTextActive]}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    period === p.key && styles.tabTextActive,
+                  ]}
+                >
                   {p.label}
                 </Text>
               </TouchableOpacity>
@@ -259,7 +278,8 @@ export const SkillStatisticsScreen = ({ navigation }: Props) => {
             <Text style={styles.sectionTitle}>
               Skills{' '}
               <Text style={styles.sectionCount}>
-                ({stats?.skillStats.length ?? 0}/{stats?.skillStats.length ?? 0})
+                ({stats?.skillStats.length ?? 0}/{stats?.skillStats.length ?? 0}
+                )
               </Text>
             </Text>
             {stats?.skillStats.map(({ skill, xpInPeriod }) => (
@@ -271,7 +291,8 @@ export const SkillStatisticsScreen = ({ navigation }: Props) => {
                 <View style={styles.skillInfo}>
                   <Text style={styles.skillLabel}>{skill.label}</Text>
                   <Text style={styles.skillMeta}>
-                    {xpInPeriod} XP | Level {skill.level} | Streak {skill.currentStreak}
+                    {xpInPeriod} XP | Level {skill.level} | Streak{' '}
+                    {skill.currentStreak}
                   </Text>
                 </View>
               </View>
@@ -385,7 +406,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
   },
-  iconBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  iconBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerIcon: { color: d.text, fontSize: 20, fontWeight: '600' },
   headerTitle: {
     flex: 1,
@@ -433,7 +459,11 @@ const styles = StyleSheet.create({
   section: { gap: spacing.sm },
   sectionTitle: { color: d.text, fontSize: 17, fontWeight: '700' },
   sectionCount: { color: d.textSecondary, fontWeight: '400' },
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   helpCircle: {
     width: 20,
     height: 20,

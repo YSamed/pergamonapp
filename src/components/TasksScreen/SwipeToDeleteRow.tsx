@@ -17,7 +17,7 @@ type Props = {
   disableComplete?: boolean;
 };
 
-const d = colors.dark;
+const d = colors;
 const MAX_SWIPE = 132;
 const DELETE_THRESHOLD = 96;
 const COMPLETE_THRESHOLD = 84;

@@ -1,11 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import {
-  Animated,
-  Dimensions,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Animated, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing } from '../../theme';
 
 const d = colors.dark;
@@ -101,9 +95,19 @@ export const XPGainOverlay = ({
       s.scale.setValue(0.5);
     });
   }, [
-    masterOpacity, xpScale, xpTranslateY, xpOpacity, flashOpacity,
-    ringScale, ringOpacity, progressWidth, streakScale, streakOpacity,
-    particles, skillAnims, levelProgress,
+    masterOpacity,
+    xpScale,
+    xpTranslateY,
+    xpOpacity,
+    flashOpacity,
+    ringScale,
+    ringOpacity,
+    progressWidth,
+    streakScale,
+    streakOpacity,
+    particles,
+    skillAnims,
+    levelProgress,
   ]);
 
   useEffect(() => {
@@ -315,9 +319,7 @@ export const XPGainOverlay = ({
   return (
     <View style={styles.container} pointerEvents="none">
       {/* Screen flash */}
-      <Animated.View
-        style={[styles.flash, { opacity: flashOpacity }]}
-      />
+      <Animated.View style={[styles.flash, { opacity: flashOpacity }]} />
 
       {/* Main content */}
       <Animated.View style={[styles.content, { opacity: masterOpacity }]}>
@@ -360,10 +362,7 @@ export const XPGainOverlay = ({
             styles.xpWrap,
             {
               opacity: xpOpacity,
-              transform: [
-                { scale: xpScale },
-                { translateY: xpTranslateY },
-              ],
+              transform: [{ scale: xpScale }, { translateY: xpTranslateY }],
             },
           ]}
         >

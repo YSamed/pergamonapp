@@ -18,7 +18,7 @@ import { EditSkillModal, type EditSkillValues } from '../../components/TaskDetai
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SkillDetail'>;
 
-const d = colors.dark;
+const d = colors;
 const XP_PER_LEVEL = 100;
 
 export const SkillDetailScreen = ({ route, navigation }: Props) => {

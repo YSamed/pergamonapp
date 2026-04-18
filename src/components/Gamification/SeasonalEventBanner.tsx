@@ -8,7 +8,7 @@ import {
 import { colors, radius, spacing } from '../../theme';
 import type { SeasonalEvent } from '../../mock';
 
-const d = colors.dark;
+const d = colors;
 
 type Props = {
   event: SeasonalEvent;

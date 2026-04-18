@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
   },
   sheet: {
-    backgroundColor: colors.dark.background,
+    backgroundColor: colors.background,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     paddingHorizontal: spacing.lg,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: colors.dark.border,
+    backgroundColor: colors.border,
     marginBottom: spacing.md,
   },
   header: {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   title: {
-    color: colors.dark.text,
+    color: colors.text,
     fontSize: 22,
     fontWeight: '700',
   },
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   closeIcon: {
-    color: colors.dark.textSecondary,
+    color: colors.textSecondary,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   monthNavArrow: {
-    color: colors.dark.text,
+    color: colors.text,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -235,10 +235,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     borderRadius: radius.full,
     borderWidth: 1.5,
-    borderColor: colors.dark.primary,
+    borderColor: colors.primary,
   },
   currentMonthText: {
-    color: colors.dark.primary,
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   dayLabelText: {
     width: CELL_SIZE,
     textAlign: 'center',
-    color: colors.dark.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -274,15 +274,15 @@ const styles = StyleSheet.create({
   },
   calCellToday: {
     borderWidth: 1.5,
-    borderColor: colors.dark.primary,
+    borderColor: colors.primary,
   },
   calCellText: {
-    color: colors.dark.text,
+    color: colors.text,
     fontSize: 13,
     fontWeight: '500',
   },
   calCellTextToday: {
-    color: colors.dark.primary,
+    color: colors.primary,
     fontWeight: '700',
   },
   completionDot: {
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   legendLabel: {
-    color: colors.dark.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     fontWeight: '500',
   },

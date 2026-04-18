@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, spacing, radius } from '../../theme';
 import { MonthlyViewModal } from './MonthlyViewModal';
 
-const d = colors.dark;
+const d = colors;
 
 const DAY_LABELS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 

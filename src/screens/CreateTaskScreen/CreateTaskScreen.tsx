@@ -20,7 +20,7 @@ import { habitsService } from '../../services/habits.service';
 import { todosService } from '../../services/todos.service';
 import type { Difficulty, SkillId } from '../../types';
 
-const d = colors.dark;
+const d = colors;
 const USER_ID = 'user-1';
 const TASK_TYPES = ['habit', 'todo'] as const;
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];

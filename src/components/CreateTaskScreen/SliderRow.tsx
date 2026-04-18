@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { colors, spacing, radius } from '../../theme';
 
-const d = colors.dark;
+const d = colors;
 
 type Props = {
   icon: string;

@@ -20,7 +20,7 @@ import {
   type CommunityTab,
 } from '../../mock';
 
-const d = colors.dark;
+const d = colors;
 const TABS: Array<{ key: CommunityTab; label: string }> = [
   { key: 'feed', label: 'Feed' },
   { key: 'group', label: 'Group' },

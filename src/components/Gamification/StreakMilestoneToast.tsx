@@ -3,7 +3,7 @@ import { Animated, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { colors, radius, spacing } from '../../theme';
 
-const d = colors.dark;
+const d = colors;
 const AUTO_DISMISS_MS = 3200;
 
 const MILESTONE_DATA: Record<number, { emoji: string; title: string; color: string }> = {

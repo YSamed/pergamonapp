@@ -9,7 +9,7 @@ import {
 import { colors, radius, spacing } from '../../theme';
 import type { DailyChallenge } from '../../mock';
 
-const d = colors.dark;
+const d = colors;
 
 type Props = {
   challenges: DailyChallenge[];

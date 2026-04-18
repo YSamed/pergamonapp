@@ -1,63 +1,45 @@
 export const colors = {
-  // Base
-  background: '#F8FAFC',
-  surface: '#FFFFFF',
-  border: '#CBD5E1',
-  borderLight: '#E2E8F0',
+  // Midnight Discipline Base Palette
+  background: '#1a1a1a', // Near-black canvas
+  surface: '#101C28', // Surface/1
+  surfaceElevated: '#152435', // Surface/2
+  border: '#233447', // Line subtle / Borders
 
-  // Text
-  text: '#0F172A',
-  textSecondary: '#475569',
-  textMuted: '#94A3B8',
+  // Text Hierarchy
+  text: '#F5F7FB', // Text/high (Headlines)
+  textSecondary: '#9EB0C5', // Text/med (Supporting)
+  textMuted: '#6E8096', // Text/low (Utility)
 
-  // Brand
-  primary: '#0F766E',
-  primaryLight: '#CCFBF1',
-  primaryDark: '#0D5F58',
+  // Chromatic Roles (The 三人組)
+  primary: '#4ED8C7', // aqua
+  accent: '#F4B544', // amber
+  error: '#FF6B6B', // coral
 
-  // Gamification
-  xp: '#F59E0B',
-  xpLight: '#FEF3C7',
-  level: '#8B5CF6',
-  levelLight: '#EDE9FE',
-  streak: '#EF4444',
-  streakLight: '#FEE2E2',
+  // Semantic mappings
+  xp: '#F4B544', // amber
+  level: '#4ED8C7', // aqua
+  streak: '#FF6B6B', // coral
 
-  // Priority
-  priorityHigh: '#EF4444',
-  priorityMedium: '#F59E0B',
-  priorityLow: '#22C55E',
-
-  // Difficulty
-  difficultyEasy: '#22C55E',
-  difficultyMedium: '#F59E0B',
-  difficultyHard: '#EF4444',
-
-  // Feedback
-  success: '#22C55E',
-  successLight: '#DCFCE7',
-  warning: '#F59E0B',
-  warningLight: '#FEF3C7',
-  error: '#EF4444',
-  errorLight: '#FEE2E2',
+  success: '#4ED8C7',
+  warning: '#F4B544',
 
   // Overlay
-  overlay: 'rgba(0,0,0,0.4)',
+  overlay: 'rgba(0,0,0,0.6)',
 
-  // Dark theme
+  // Legacy/Compatibility object (pointing to new base)
   dark: {
-    background: '#0F0F14',
-    surface: '#1A1A24',
-    surfaceElevated: '#22222E',
-    border: '#2E2E3E',
-    text: '#F1F1F5',
-    textSecondary: '#9090A8',
-    textMuted: '#55556A',
-    primary: '#00C2A0',
-    primaryDim: '#00C2A020',
-    xp: '#F59E0B',
-    xpBar: '#F59E0B',
-    streakBar: '#FACC15',
-    cardBorder: '#2A2A38',
+    background: '#071019',
+    surface: '#101C28',
+    surfaceElevated: '#152435',
+    border: '#233447',
+    text: '#F5F7FB',
+    textSecondary: '#9EB0C5',
+    textMuted: '#6E8096',
+    primary: '#4ED8C7',
+    primaryDim: '#4ED8C720',
+    xp: '#F4B544',
+    xpBar: '#F4B544',
+    streakBar: '#FF6B6B',
+    cardBorder: '#233447',
   },
 } as const;

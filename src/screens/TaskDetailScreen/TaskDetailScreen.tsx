@@ -28,7 +28,7 @@ import { levelProgress as calcLevelProgress, calculateLevel } from '../../module
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TaskDetail'>;
 
-const d = colors.dark;
+const d = colors;
 
 const SKILL_INFO: Record<string, { emoji: string; label: string }> = {
   strength: { emoji: '💪', label: 'Strength' },

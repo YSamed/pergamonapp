@@ -35,7 +35,7 @@ type ReminderTask = {
   type: 'habit' | 'todo';
 };
 
-const d = colors.dark;
+const d = colors;
 const MOCK_TASK_DURATION_SECONDS = 3;
 const TASKS_NOTIFICATION_CHANNEL_ID = 'tasks-notifications';
 const FALLBACK_REMINDER_TASK: ReminderTask = {

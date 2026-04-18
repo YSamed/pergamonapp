@@ -7,7 +7,7 @@ function shadow(opacity: number, radius: number, offsetY: number, elevation: num
     return { elevation };
   }
   return {
-    shadowColor: '#000',
+    shadowColor: 'colors.black',
     shadowOffset: { width: 0, height: offsetY },
     shadowOpacity: opacity,
     shadowRadius: radius,

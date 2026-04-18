@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { colors, spacing, radius } from '../../theme';
 
-const d = colors.dark;
+const d = colors;
 const NAME_LIMIT = 32;
 
 export type EditSkillValues = {

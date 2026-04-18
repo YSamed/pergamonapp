@@ -10,7 +10,7 @@ type Props = {
   todos: Todo[];
 };
 
-const d = colors.dark;
+const d = colors;
 const avatarImage = require('../../assets/icons/iconn.png');
 const DISPLAY_MAX = 50;
 const HEALTH_MAX = 100;

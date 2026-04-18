@@ -15,7 +15,7 @@ import type { Skill } from '../../types';
 import { skillsService } from '../../services/skills.service';
 import { colors, spacing, radius } from '../../theme';
 
-const d = colors.dark;
+const d = colors;
 
 const XP_PER_LEVEL = 100;
 

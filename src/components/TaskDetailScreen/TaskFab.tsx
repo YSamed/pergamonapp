@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { colors, spacing, radius } from '../../theme';
 
-const d = colors.dark;
+const d = colors;
 
 export type TaskFabProps = {
   onComplete: () => void;

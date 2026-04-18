@@ -1,7 +1,7 @@
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors, spacing, radius } from '../../theme';
 
-const d = colors.dark;
+const d = colors;
 
 type Props = {
   label: string;

@@ -18,7 +18,7 @@ import {
   type ClanPageMember,
 } from '../../mock';
 
-const d = colors.dark;
+const d = colors;
 const accent = colors.level;
 const accentDim = 'rgba(139,92,246,0.16)';
 const accentBorder = 'rgba(139,92,246,0.42)';

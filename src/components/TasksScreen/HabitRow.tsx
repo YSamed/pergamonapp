@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors } from '../../theme';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { spacing } from '../../theme';
 import type { Habit } from '../../types';
@@ -109,12 +110,12 @@ export const HabitRow = ({ habit, onComplete, onDelete, onPress }: Props) => {
 
 const styles = StyleSheet.create({
   row: {
-    backgroundColor: '#1F1D25',
+    backgroundColor: 'colors.surface',
     borderRadius: 30,
     paddingHorizontal: spacing.lg,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#2D2934',
+    borderColor: 'colors.border',
   },
   contentRow: {
     flexDirection: 'row',
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     paddingRight: spacing.xs,
   },
   title: {
-    color: '#F4F3F8',
+    color: 'colors.text',
     fontSize: 15,
     lineHeight: 18,
     fontWeight: '700',
@@ -144,24 +145,24 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#3C4250',
+    backgroundColor: 'colors.surfaceElevated',
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayCircleDone: {
-    backgroundColor: '#C5DDE4',
+    backgroundColor: 'colors.primary',
   },
   dayCheck: {
-    color: '#2B3941',
+    color: 'colors.background',
     fontSize: 13,
     fontWeight: '800',
   },
   dayLabel: {
-    color: '#646072',
+    color: 'colors.textMuted',
     fontSize: 9,
     fontWeight: '700',
   },
   dayLabelDone: {
-    color: '#8C8898',
+    color: 'colors.textSecondary',
   },
 });

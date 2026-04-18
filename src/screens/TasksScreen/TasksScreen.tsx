@@ -75,7 +75,13 @@ export const TasksScreen = () => {
 
   useEffect(() => {
     void loadData();
-  }, []);
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      void loadData();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     return () => {

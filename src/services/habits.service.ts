@@ -7,8 +7,11 @@ let _habits = [...mockHabits];
 export const habitsService = {
   async getTodayHabits(): Promise<Habit[]> {
     const today = new Date().getDay(); // 0=Sun...6=Sat
+    const todayDate = new Date().toISOString().slice(0, 10);
     return _habits.filter((h) => {
       if (!h.isActive) return false;
+      if (h.startDate && h.startDate > todayDate) return false;
+      if (!h.isOngoing && h.endDate && h.endDate < todayDate) return false;
       if (h.frequency === 'daily') return true;
       if (h.frequency === 'weekly') return h.frequencyDays.includes(today);
       return false;

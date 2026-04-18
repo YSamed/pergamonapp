@@ -10,6 +10,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   Tasks: undefined;
   Progress: undefined;
+  Community: undefined;
   Clan: undefined;
   Profile: undefined;
 };

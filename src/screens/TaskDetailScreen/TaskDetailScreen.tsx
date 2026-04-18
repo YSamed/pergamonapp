@@ -17,6 +17,14 @@ import type { Habit, Todo } from '../../types';
 import { InfoCard } from '../../components/TaskDetailScreen/InfoCard';
 import { WeeklyActivity } from '../../components/TaskDetailScreen/WeeklyActivity';
 import { TaskFab } from '../../components/TaskDetailScreen/TaskFab';
+import {
+  XPGainOverlay,
+  LevelUpModal,
+  StreakMilestoneToast,
+} from '../../components/Gamification';
+import { mockProgress } from '../../mock';
+import { getStreakBonus } from '../../modules/xp';
+import { levelProgress as calcLevelProgress, calculateLevel } from '../../modules/level';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TaskDetail'>;
 
@@ -48,6 +56,18 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
   const [habit, setHabit] = useState<Habit | null>(null);
   const [todo, setTodo] = useState<Todo | null>(null);
 
+  // Gamification state
+  const [showXP, setShowXP] = useState(false);
+  const [xpAmount, setXpAmount] = useState(0);
+  const [xpSkillGains, setXpSkillGains] = useState<{ icon: string; label: string; xp: number }[]>([]);
+  const [xpLevelProgress, setXpLevelProgress] = useState<{ from: number; to: number } | undefined>();
+  const [xpStreakCount, setXpStreakCount] = useState<number | undefined>();
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [newLevel, setNewLevel] = useState(0);
+  const [showStreakMilestone, setShowStreakMilestone] = useState(false);
+  const [streakMilestoneCount, setStreakMilestoneCount] = useState(0);
+  const [streakBonusXP, setStreakBonusXP] = useState(0);
+
   useEffect(() => {
     void load();
   }, []);
@@ -61,10 +81,65 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
   };
 
   const handleComplete = async () => {
+    const task = habit ?? todo;
+    if (!task) return;
+
+    // Calculate XP and skill gains before completing
+    const earnedXP = task.xpReward;
+    const skills = task.skillIds.map((skillId) => {
+      const info = SKILL_INFO[skillId];
+      return {
+        icon: info?.emoji ?? '⭐',
+        label: info?.label ?? skillId,
+        xp: Math.round(earnedXP / task.skillIds.length),
+      };
+    });
+
+    // Calculate level progress
+    const currentTotalXP = mockProgress.user.totalXP;
+    const newTotalXP = currentTotalXP + earnedXP;
+    const progressFrom = calcLevelProgress(currentTotalXP);
+    const progressTo = calcLevelProgress(newTotalXP);
+    const oldLevel = calculateLevel(currentTotalXP);
+    const nextLevel = calculateLevel(newTotalXP);
+    const didLevelUp = nextLevel > oldLevel;
+
+    // Check streak milestone (for habits)
+    const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
+    let streakHit = 0;
+    if (taskType === 'habit' && habit) {
+      const newStreak = habit.streak + 1;
+      if (STREAK_MILESTONES.includes(newStreak)) {
+        streakHit = newStreak;
+      }
+    }
+
+    // Perform the actual completion
     if (taskType === 'habit' && habit) {
       setHabit(await habitsService.completeHabit(taskId));
     } else if (taskType === 'todo' && todo) {
       setTodo(await todosService.completeTodo(taskId));
+    }
+
+    // Trigger XP animation
+    setXpAmount(earnedXP);
+    setXpSkillGains(skills);
+    setXpLevelProgress({ from: progressFrom, to: didLevelUp ? 1 : progressTo });
+    setXpStreakCount(taskType === 'habit' && habit ? habit.streak + 1 : undefined);
+    setShowXP(true);
+
+    // Queue level-up modal after XP animation
+    if (didLevelUp) {
+      setNewLevel(nextLevel);
+      setTimeout(() => setShowLevelUp(true), 2500);
+    }
+
+    // Queue streak milestone toast
+    if (streakHit > 0) {
+      const bonus = getStreakBonus(streakHit);
+      setStreakMilestoneCount(streakHit);
+      setStreakBonusXP(bonus);
+      setTimeout(() => setShowStreakMilestone(true), didLevelUp ? 4500 : 2600);
     }
   };
 
@@ -290,6 +365,27 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
           onFail={handleFail}
           onUndo={handleUndo}
           onEdit={() => {}}
+        />
+
+        {/* Gamification overlays */}
+        <XPGainOverlay
+          visible={showXP}
+          xpAmount={xpAmount}
+          skillGains={xpSkillGains}
+          levelProgress={xpLevelProgress}
+          streakCount={xpStreakCount}
+          onDismiss={() => setShowXP(false)}
+        />
+        <LevelUpModal
+          visible={showLevelUp}
+          newLevel={newLevel}
+          onDismiss={() => setShowLevelUp(false)}
+        />
+        <StreakMilestoneToast
+          visible={showStreakMilestone}
+          streakCount={streakMilestoneCount}
+          bonusXP={streakBonusXP}
+          onDismiss={() => setShowStreakMilestone(false)}
         />
       </SafeAreaView>
     </View>

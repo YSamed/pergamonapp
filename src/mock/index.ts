@@ -5,3 +5,4 @@ export * from './mock-progress';
 export * from './mock-clan';
 export * from './mock-community';
 export * from './mock-clan-page';
+export * from './mock-gamification';

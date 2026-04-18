@@ -25,6 +25,8 @@ import { TodoRow } from '../../components/TasksScreen/TodoRow';
 import { CategoriesBottomSheet, type Category } from '../../components/TasksScreen/CategoriesBottomSheet';
 import { NewCategoryDialog } from '../../components/TasksScreen/NewCategoryDialog';
 import { DeleteCategoryDialog } from '../../components/TasksScreen/DeleteCategoryDialog';
+import { DailyChallengeCard, SeasonalEventBanner } from '../../components/Gamification';
+import { mockDailyChallenges, mockSeasonalEvent } from '../../mock';
 
 type FilterTab = 'all' | 'habits' | 'todos';
 type ReminderTask = {
@@ -324,6 +326,16 @@ export const TasksScreen = () => {
           {user && progress && (
             <UserProgressCard user={user} progress={progress} habits={habits} todos={todos} />
           )}
+
+          {/* Seasonal Event Banner */}
+          <View style={styles.gamificationSection}>
+            <SeasonalEventBanner event={mockSeasonalEvent} />
+          </View>
+
+          {/* Daily Challenges */}
+          <View style={styles.gamificationSection}>
+            <DailyChallengeCard challenges={mockDailyChallenges} />
+          </View>
 
           {/* Filter Tabs */}
           <View style={styles.filterRow}>
@@ -808,6 +820,11 @@ const styles = StyleSheet.create({
     color: d.textSecondary,
     fontSize: 12,
     fontWeight: '700',
+  },
+
+  gamificationSection: {
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
   },
 
   bottomPad: {

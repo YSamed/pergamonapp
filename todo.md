@@ -121,15 +121,17 @@ Referans: `docs/` klasörü (00–09 arası dokümanlar)
 
 ## Faz 8 — Clan Ekranı
 
-- [ ] Clan oluşturma / katılma
-- [ ] Clan overview (üyeler, haftalık katkı)
-- [ ] Member aktivite akışı
-- [ ] Haftalık clan challenge
-- [ ] Davet / join mekanizması
+- [x] Clan oluşturma / katılma
+- [x] Clan overview (üyeler, haftalık katkı)
+- [x] Member aktivite akışı
+- [x] Haftalık clan challenge
+- [x] Davet / join mekanizması
+- [x] Hero + Discover empty state tasarımı
+- [x] Popüler klanlar keşfet listesi (void gradient efekti)
 
 ---
 
-## Faz 9 — Profil Ekranı
+## Faz 9 — Profil Ekranı _(atlandı)_
 
 - [ ] Avatar gösterimi
 - [ ] Rozetler / başarılar vitrini
@@ -140,12 +142,14 @@ Referans: `docs/` klasörü (00–09 arası dokümanlar)
 
 ## Faz 10 — Gamification Katmanı (Derinleştirme)
 
-- [ ] Completion animasyonu (XP gain efekti)
-- [ ] Level-up ekranı / modal
-- [ ] Streak mileston bonus XP
+- [x] Completion animasyonu (XP gain efekti) — `XPGainOverlay` (particles, ring burst, skill badges, progress bar)
+- [x] Level-up ekranı / modal — `LevelUpModal` (confetti, glow rings, bounce animations)
+- [x] Streak mileston bonus XP — `StreakMilestoneToast` (slide-in toast, milestone data for 3/7/14/30/60/100)
 - [ ] Clan event tamamlama bonusu
-- [ ] Daily challenge sistemi
-- [ ] Sezonluk event altyapısı
+- [x] Daily challenge sistemi — `DailyChallengeCard` (progress bars, countdown timer, XP rewards)
+- [x] Sezonluk event altyapısı — `SeasonalEventBanner` (shimmer, pulse, multiplier badge)
+- [x] TaskDetailScreen entegrasyonu (complete → XP anim → level-up → streak toast)
+- [x] TasksScreen entegrasyonu (daily challenges + seasonal event banner)
 
 ---
 

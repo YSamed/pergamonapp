@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -25,9 +26,6 @@ const accentSoft = '#C4B5FD';
 
 type SheetMode = 'none' | 'create' | 'join';
 type PrivacyMode = 'open' | 'invite';
-type MemberLimit = 3 | 5 | 10;
-
-const MEMBER_LIMITS: MemberLimit[] = [3, 5, 10];
 
 export const ClanScreen = () => {
   const [sheetMode, setSheetMode] = useState<SheetMode>('none');
@@ -36,7 +34,6 @@ export const ClanScreen = () => {
   const [description, setDescription] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [privacy, setPrivacy] = useState<PrivacyMode>('open');
-  const [memberLimit, setMemberLimit] = useState<MemberLimit>(5);
 
   const dashboard = useMemo(() => {
     const source = mockClanPage.dashboard;
@@ -46,7 +43,10 @@ export const ClanScreen = () => {
     };
   }, [clanName]);
 
-  const progress = Math.min(1, dashboard.weeklyCurrent / dashboard.weeklyTarget);
+  const progress = Math.min(
+    1,
+    dashboard.weeklyCurrent / dashboard.weeklyTarget,
+  );
   const canCreate = clanName.trim().length > 0;
   const canJoin = inviteCode.trim().length > 0;
 
@@ -68,39 +68,143 @@ export const ClanScreen = () => {
     <View style={styles.screen}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {!hasClan ? (
-          <View style={styles.emptyWrap}>
-            <View style={styles.emptyBadge}>
-              <Text style={styles.emptyBadgeIcon}>🛡️</Text>
-            </View>
-            <Text style={styles.emptyTitle}>{mockClanPage.emptyState.title}</Text>
-            <Text style={styles.emptyDescription}>{mockClanPage.emptyState.description}</Text>
+          <ScrollView
+            style={styles.emptyScroll}
+            contentContainerStyle={styles.emptyScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Hero Section */}
+            <View style={styles.heroSection}>
+              <View style={styles.heroImageContainer}>
+                <Image
+                  source={require('../../assets/images/clan-hero.png')}
+                  style={styles.heroImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.heroGradient} />
+              </View>
 
-            <View style={styles.actionStack}>
-              <TouchableOpacity
-                style={[styles.primaryButton, styles.shadowSoft]}
-                onPress={() => setSheetMode('create')}
-                activeOpacity={0.86}
-              >
-                <Text style={styles.primaryButtonText}>Klan Oluştur</Text>
-              </TouchableOpacity>
+              <View style={styles.heroContent}>
+                <Text style={styles.heroTitleMain}>
+                  {mockClanPage.emptyState.hero.title}
+                </Text>
+                <Text style={styles.heroDescMain}>
+                  {mockClanPage.emptyState.hero.description}
+                </Text>
+
+                <TouchableOpacity
+                  style={[styles.primaryButton, styles.shadowSoft]}
+                  onPress={() => setSheetMode('create')}
+                  activeOpacity={0.86}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {mockClanPage.emptyState.hero.cta}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Discover Section */}
+            <View style={styles.discoverSection}>
+              <View style={styles.miniAvatars}>
+                <View
+                  style={[styles.miniAvatar, { backgroundColor: '#3B82F6' }]}
+                >
+                  <Text style={styles.miniAvatarText}>🛡️</Text>
+                </View>
+                <View
+                  style={[
+                    styles.miniAvatar,
+                    { backgroundColor: '#F59E0B', marginLeft: -12 },
+                  ]}
+                >
+                  <Text style={styles.miniAvatarText}>⚔️</Text>
+                </View>
+                <View
+                  style={[
+                    styles.miniAvatar,
+                    { backgroundColor: '#8B5CF6', marginLeft: -12 },
+                  ]}
+                >
+                  <Text style={styles.miniAvatarText}>🪄</Text>
+                </View>
+              </View>
+
+              <Text style={styles.discoverTitle}>
+                {mockClanPage.emptyState.discover.title}
+              </Text>
+              <Text style={styles.discoverDesc}>
+                {mockClanPage.emptyState.discover.description}
+              </Text>
+
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={() => setSheetMode('join')}
                 activeOpacity={0.86}
               >
-                <Text style={styles.secondaryButtonText}>Klana Katıl</Text>
+                <Text style={styles.secondaryButtonText}>
+                  {mockClanPage.emptyState.discover.cta}
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <View style={styles.infoCard}>
-              {mockClanPage.emptyState.infoLines.map((line) => (
-                <View key={line} style={styles.infoRow}>
-                  <View style={styles.infoDot} />
-                  <Text style={styles.infoText}>{line}</Text>
+            {/* Explore Section */}
+            <View style={styles.exploreSection}>
+              <View style={styles.exploreHeader}>
+                <Text style={styles.exploreTitle}>Popüler Klanlar</Text>
+                <Text style={styles.exploreNotice}>
+                  Sadece iki kişi ve üzerindeki klanlar görüntüleniyor
+                </Text>
+              </View>
+              <View style={styles.exploreListContainer}>
+                <View style={styles.exploreList}>
+                  {mockClanPage.emptyState.exploreClans.map((clan, idx) => (
+                    <ClanRow key={clan.id} clan={clan} rank={idx + 1} />
+                  ))}
                 </View>
-              ))}
+
+                {/* Void Gradient Effect */}
+                <View style={styles.voidOverlay}>
+                  <View
+                    style={[
+                      styles.voidStep,
+                      { opacity: 0.1, height: 40, bottom: 120 },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.voidStep,
+                      { opacity: 0.3, height: 40, bottom: 80 },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.voidStep,
+                      { opacity: 0.6, height: 40, bottom: 40 },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.voidStep,
+                      { opacity: 1.0, height: 40, bottom: 0 },
+                    ]}
+                  />
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.viewAllButton}
+                activeOpacity={0.8}
+              >
+                <View style={styles.viewAllContent}>
+                  <Text style={styles.viewAllText}>Tüm Klanları Gör</Text>
+                  <Text style={styles.viewAllIcon}>→</Text>
+                </View>
+              </TouchableOpacity>
             </View>
-          </View>
+
+            <View style={styles.spacer} />
+          </ScrollView>
         ) : (
           <View style={styles.filledWrap}>
             <ScrollView
@@ -116,7 +220,10 @@ export const ClanScreen = () => {
                       {dashboard.league} • Level {dashboard.level}
                     </Text>
                   </View>
-                  <TouchableOpacity style={styles.settingsButton} activeOpacity={0.84}>
+                  <TouchableOpacity
+                    style={styles.settingsButton}
+                    activeOpacity={0.84}
+                  >
                     <Text style={styles.settingsText}>⚙</Text>
                   </TouchableOpacity>
                 </View>
@@ -130,9 +237,16 @@ export const ClanScreen = () => {
                   </Text>
                 </View>
                 <View style={styles.progressTrack}>
-                  <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${progress * 100}%` },
+                    ]}
+                  />
                 </View>
-                <Text style={styles.progressPercent}>%{Math.round(progress * 100)} ilerleme</Text>
+                <Text style={styles.progressPercent}>
+                  %{Math.round(progress * 100)} ilerleme
+                </Text>
               </View>
 
               <SectionCard title="Üyeler">
@@ -148,8 +262,12 @@ export const ClanScreen = () => {
               </SectionCard>
 
               <View style={styles.pressureCard}>
-                <Text style={styles.pressureTitle}>{dashboard.pressureTitle}</Text>
-                <Text style={styles.pressureSubtitle}>{dashboard.pressureSubtitle}</Text>
+                <Text style={styles.pressureTitle}>
+                  {dashboard.pressureTitle}
+                </Text>
+                <Text style={styles.pressureSubtitle}>
+                  {dashboard.pressureSubtitle}
+                </Text>
               </View>
 
               <SectionCard title="Aktivite">
@@ -170,7 +288,10 @@ export const ClanScreen = () => {
             </ScrollView>
 
             <View style={styles.stickyCtaWrap}>
-              <TouchableOpacity style={[styles.primaryButton, styles.shadowSoft]} activeOpacity={0.86}>
+              <TouchableOpacity
+                style={[styles.primaryButton, styles.shadowSoft]}
+                activeOpacity={0.86}
+              >
                 <Text style={styles.primaryButtonText}>Habitleri Tamamla</Text>
               </TouchableOpacity>
             </View>
@@ -184,7 +305,11 @@ export const ClanScreen = () => {
           onRequestClose={closeSheet}
         >
           <View style={styles.sheetOverlay}>
-            <TouchableOpacity style={styles.sheetBackdrop} activeOpacity={1} onPress={closeSheet} />
+            <TouchableOpacity
+              style={styles.sheetBackdrop}
+              activeOpacity={1}
+              onPress={closeSheet}
+            />
             <View style={styles.sheet}>
               <View style={styles.sheetHandle} />
               {sheetMode === 'create' ? (
@@ -198,46 +323,27 @@ export const ClanScreen = () => {
                     label="Klan Adı"
                     value={clanName}
                     onChangeText={setClanName}
-                    placeholder="Disiplin Ekibi"
+                    placeholder=""
                   />
                   <LabeledInput
                     label="Açıklama"
                     value={description}
                     onChangeText={setDescription}
-                    placeholder="Kısa bir klan açıklaması"
+                    placeholder=""
                     multiline
                   />
 
-                  <Text style={styles.fieldLabel}>Maksimum Üye</Text>
-                  <View style={styles.segmentRow}>
-                    {MEMBER_LIMITS.map((limit) => {
-                      const active = memberLimit === limit;
-                      return (
-                        <TouchableOpacity
-                          key={limit}
-                          style={[styles.segmentButton, active && styles.segmentButtonActive]}
-                          onPress={() => setMemberLimit(limit)}
-                          activeOpacity={0.84}
-                        >
-                          <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
-                            {limit}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-
-                  <Text style={styles.fieldLabel}>Gizlilik</Text>
+                  <Text style={styles.fieldLabel}>Erişim Modu</Text>
                   <View style={styles.privacyStack}>
                     <PrivacyCard
-                      title="Açık"
-                      subtitle="Herkes katılabilir"
+                      title="Açık Katılım"
+                      subtitle="Dileyen herkes ekibe katılabilir"
                       active={privacy === 'open'}
                       onPress={() => setPrivacy('open')}
                     />
                     <PrivacyCard
-                      title="Davetli"
-                      subtitle="Invite code ile giriş"
+                      title="Özel Davet"
+                      subtitle="Üyeler yalnızca onay ile girebilir"
                       active={privacy === 'invite'}
                       onPress={() => setPrivacy('invite')}
                     />
@@ -253,12 +359,16 @@ export const ClanScreen = () => {
                     activeOpacity={0.86}
                     disabled={!canCreate}
                   >
-                    <Text style={styles.primaryButtonText}>Klanı Oluştur</Text>
+                    <Text style={styles.primaryButtonText}>Oluştur</Text>
                   </TouchableOpacity>
 
                   <View style={styles.sheetNotes}>
-                    <Text style={styles.sheetNote}>Klan kurmak sorumluluk gerektirir</Text>
-                    <Text style={styles.sheetNote}>Aktif kalmazsan klanın geriler</Text>
+                    <Text style={styles.sheetNote}>
+                      Klan kurmak sorumluluk gerektirir
+                    </Text>
+                    <Text style={styles.sheetNote}>
+                      Aktif kalmazsan klanın geriler
+                    </Text>
                   </View>
                 </>
               ) : (
@@ -297,7 +407,13 @@ export const ClanScreen = () => {
   );
 };
 
-const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const SectionCard = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
   <View style={[styles.sectionCard, styles.shadowSoft]}>
     <Text style={styles.sectionTitle}>{title}</Text>
     {children}
@@ -338,17 +454,50 @@ const ActivityRow = ({ item }: { item: ClanPageActivity }) => (
   </View>
 );
 
-const LeaderboardRow = ({ entry }: { entry: ClanLeaderboardEntry }) => (
-  <View style={[styles.leaderboardRow, entry.isCurrentClan && styles.leaderboardRowActive]}>
+const ClanRow = ({ clan, rank }: { clan: any; rank: number }) => (
+  <View style={styles.leaderboardRow}>
     <View style={styles.leaderboardLeft}>
-      <Text style={[styles.rankText, entry.isCurrentClan && styles.rankTextActive]}>
+      <Text style={styles.rankText}>#{rank}</Text>
+      <View style={styles.clanIconWrap}>
+        <Text style={styles.clanIcon}>{clan.icon}</Text>
+      </View>
+      <View>
+        <Text style={styles.leaderboardName}>{clan.name}</Text>
+        <Text style={styles.clanMeta}>{clan.members} Üye</Text>
+      </View>
+    </View>
+    <Text style={styles.leaderboardScore}>{clan.score}</Text>
+  </View>
+);
+
+const LeaderboardRow = ({ entry }: { entry: ClanLeaderboardEntry }) => (
+  <View
+    style={[
+      styles.leaderboardRow,
+      entry.isCurrentClan && styles.leaderboardRowActive,
+    ]}
+  >
+    <View style={styles.leaderboardLeft}>
+      <Text
+        style={[styles.rankText, entry.isCurrentClan && styles.rankTextActive]}
+      >
         #{entry.rank}
       </Text>
-      <Text style={[styles.leaderboardName, entry.isCurrentClan && styles.leaderboardNameActive]}>
+      <Text
+        style={[
+          styles.leaderboardName,
+          entry.isCurrentClan && styles.leaderboardNameActive,
+        ]}
+      >
         {entry.name}
       </Text>
     </View>
-    <Text style={[styles.leaderboardScore, entry.isCurrentClan && styles.leaderboardScoreActive]}>
+    <Text
+      style={[
+        styles.leaderboardScore,
+        entry.isCurrentClan && styles.leaderboardScoreActive,
+      ]}
+    >
       {entry.score}
     </Text>
   </View>
@@ -370,7 +519,9 @@ const PrivacyCard = ({
     onPress={onPress}
     activeOpacity={0.86}
   >
-    <Text style={[styles.privacyTitle, active && styles.privacyTitleActive]}>{title}</Text>
+    <Text style={[styles.privacyTitle, active && styles.privacyTitleActive]}>
+      {title}
+    </Text>
     <Text style={styles.privacySubtitle}>{subtitle}</Text>
   </TouchableOpacity>
 );
@@ -412,40 +563,194 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 12 },
     elevation: 6,
   },
-  emptyWrap: {
+  emptyScroll: {
     flex: 1,
+  },
+  emptyScrollContent: {
+    paddingBottom: 40,
+  },
+  heroSection: {
+    marginBottom: spacing.xxl,
+  },
+  heroImageContainer: {
+    width: '100%',
+    height: 380,
+    backgroundColor: d.surfaceElevated,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  heroGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 120,
+    // Note: React Native doesn't support linear-gradient natively
+    // without a library, so we use a solid background fade or multiple views.
+    // Assuming background color is dark.
+    backgroundColor: d.background,
+    opacity: 0.9,
+    transform: [{ translateY: 60 }], // Soften the edge
+  },
+  heroContent: {
     paddingHorizontal: spacing.lg,
-    justifyContent: 'center',
+    marginTop: -40, // Pull content up over the image fade
   },
-  emptyBadge: {
-    width: 92,
-    height: 92,
-    borderRadius: 30,
-    alignSelf: 'center',
-    backgroundColor: d.surface,
-    borderWidth: 1,
-    borderColor: d.cardBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
-  },
-  emptyBadgeIcon: {
-    fontSize: 42,
-  },
-  emptyTitle: {
+  heroTitleMain: {
     color: d.text,
-    fontSize: 30,
-    fontWeight: '800',
+    fontSize: 34,
+    fontWeight: '900',
     textAlign: 'center',
-    marginBottom: spacing.sm,
-    letterSpacing: -0.6,
+    marginBottom: spacing.md,
+    letterSpacing: -1,
+    lineHeight: 40,
   },
-  emptyDescription: {
+  heroDescMain: {
     color: d.textSecondary,
     fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
     marginBottom: spacing.xl,
+    paddingHorizontal: spacing.sm,
+  },
+  discoverSection: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+    marginTop: spacing.md,
+    backgroundColor: d.surface,
+    borderRadius: 32,
+    marginHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: d.cardBorder,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  miniAvatars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  miniAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 3,
+    borderColor: d.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  miniAvatarText: {
+    fontSize: 18,
+  },
+  discoverTitle: {
+    color: d.text,
+    fontSize: 22,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+    letterSpacing: -0.4,
+  },
+  discoverDesc: {
+    color: d.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+  },
+  spacer: {
+    height: 100,
+  },
+  exploreSection: {
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.xxl,
+  },
+  exploreHeader: {
+    marginBottom: spacing.md,
+  },
+  exploreTitle: {
+    color: d.text,
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+  },
+  exploreNotice: {
+    color: d.textMuted,
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  exploreListContainer: {
+    position: 'relative',
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: d.surface,
+    borderWidth: 1,
+    borderColor: d.cardBorder,
+  },
+  exploreList: {
+    gap: 0,
+    paddingBottom: 40,
+  },
+  clanIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.md,
+    backgroundColor: d.surfaceElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.xs,
+  },
+  clanIcon: {
+    fontSize: 16,
+  },
+  clanMeta: {
+    color: d.textMuted,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  voidOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    pointerEvents: 'none',
+  },
+  voidStep: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    backgroundColor: d.background,
+  },
+  viewAllButton: {
+    marginTop: spacing.md,
+    alignSelf: 'center',
+  },
+  viewAllContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  viewAllText: {
+    color: accent,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  viewAllIcon: {
+    color: accent,
+    fontSize: 18,
+    fontWeight: '700',
   },
   actionStack: {
     gap: spacing.sm,
@@ -835,32 +1140,6 @@ const styles = StyleSheet.create({
     minHeight: 92,
     paddingTop: spacing.md,
     textAlignVertical: 'top',
-  },
-  segmentRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  segmentButton: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: d.cardBorder,
-    backgroundColor: d.surfaceElevated,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  segmentButtonActive: {
-    backgroundColor: accentDim,
-    borderColor: accentBorder,
-  },
-  segmentText: {
-    color: d.textSecondary,
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  segmentTextActive: {
-    color: accent,
   },
   privacyStack: {
     gap: spacing.sm,

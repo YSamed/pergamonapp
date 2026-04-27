@@ -1,6 +1,8 @@
 # PergamonApp — Development Roadmap & TODO
 
 Referans: `docs/` klasörü (00–09 arası dokümanlar)
+MVP sonrası büyük özellik planları: `docs/feature-plans/` (lig, klan revamp,
+zenginleştirilmiş profil, program sistemi)
 
 ---
 
@@ -176,3 +178,59 @@ Referans: `docs/` klasörü (00–09 arası dokümanlar)
 - [ ] Widget desteği (iOS / Android)
 - [ ] Smart reminder otomasyonu
 - [ ] Advanced clan wars
+
+---
+
+## Faz 13 — Zenginleştirilmiş Profil & Kimlik
+
+> Detaylı plan: `docs/feature-plans/03-zenginlestirilmis-profil.md`
+
+- [ ] `UserIdentity` veri modeli + mock
+- [ ] Onboarding wizard (yaş, eğitim, hedef, focus, görünürlük)
+- [ ] `IdentityChipRow`, `CurrentFocusCard`, `ProfileCompletionCard`
+- [ ] Aktivite heatmap (12 hafta × 7 gün)
+- [ ] `PublicProfileScreen` + visibility filtreleme
+- [ ] Klan join / lig grup atama gating
+
+---
+
+## Faz 14 — Ranked Lig Sistemi
+
+> Detaylı plan: `docs/feature-plans/01-ranked-lig-sistemi.md`
+
+- [ ] 9 tier yapısı + `League`, `LeagueParticipant`, `UserLeagueState` tipleri
+- [ ] Haftalık 30 kişilik gruplar + Pazar reset
+- [ ] `LeagueBanner`, `LeagueLeaderboardScreen`, `RankBadge`
+- [ ] Promosyon / demosyon hesaplama + animasyonu
+- [ ] Üst tier (Usta+) günlük decay
+- [ ] Freeze günleri ve protection süresi
+- [ ] Decay warning + reset reminder push'ları
+
+---
+
+## Faz 15 — Klan Revamp: Chat + Boss
+
+> Detaylı plan: `docs/feature-plans/02-klan-revamp-chat-boss.md`
+
+- [ ] Klan chat altyapısı (mock + system messages)
+- [ ] `ClanChatList`, `ClanChatBubble` (4 varyant), `ClanChatInput`
+- [ ] Boss fight engine + `computeDamage`
+- [ ] `BossHealthBar`, `BossPanel`, `BossDefeatedModal`
+- [ ] Member Insights paneli
+- [ ] Roles & permissions (owner/admin/member)
+- [ ] Klan quests (boss dışı koop görevler)
+
+---
+
+## Faz 16 — Program Sistemi (School-Replacement)
+
+> Detaylı plan: `docs/feature-plans/04-program-okul-yerine.md`
+
+- [ ] `ProgramTemplate`, `UserProgram`, `ProgramMilestone` tipleri
+- [ ] 4 başlangıç şablonu (yks-sayisal, frontend, b2-ingilizce, algoritma)
+- [ ] `ProgramsHubScreen`, `ProgramDetailScreen`, `ActiveProgramScreen`
+- [ ] Otomatik task spawn (TaskTemplate → habit/todo)
+- [ ] Checkpoint sistemi (self-quiz, reflection, mock-exam, project)
+- [ ] `MilestoneReportScreen` ve geri bildirim raporu
+- [ ] Profil `primaryGoal` → program önerisi entegrasyonu
+- [ ] Custom program builder (post-MVP)

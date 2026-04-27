@@ -5,12 +5,14 @@ export type RootStackParamList = {
   TaskDetail: { taskId: string; taskType: 'habit' | 'todo' };
   SkillDetail: { skillId: string };
   SkillStatistics: undefined;
+  Skills: undefined;
+  Community: undefined;
 };
 
 export type MainTabParamList = {
+  Home: undefined;
   Tasks: undefined;
   Progress: undefined;
-  Community: undefined;
   Clan: undefined;
   Profile: undefined;
 };

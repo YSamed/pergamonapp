@@ -96,26 +96,26 @@ Referans: `docs/` klasörü (00–09 arası dokümanlar)
 
 ## Faz 6 — Home Ekranı
 
-- [ ] Today plan kartı
-- [ ] Bugün yapılacak habitler (özet)
-- [ ] Öncelikli todo'lar (özet)
-- [ ] Günlük XP özeti
-- [ ] Quick complete butonu
-- [ ] Quick add butonu
+- [x] Today plan kartı
+- [x] Bugün yapılacak habitler (özet)
+- [x] Öncelikli todo'lar (özet)
+- [x] Günlük XP özeti
+- [x] Quick complete butonu
+- [x] Quick add butonu (CreateTask kısayolu)
 
 ---
 
 ## Faz 7 — Progress Ekranı
 
-- [ ] Toplam XP + Level gösterimi
-- [ ] Level progress bar
-- [ ] Skill bar'ları (her skill için ayrı seviye)
-- [ ] Streak kartları (günlük, haftalık)
-- [ ] Achievement / badge sistemi
-  - [ ] "İlk 7 gün streak" rozeti
-  - [ ] "100 görev tamamlandı" rozeti
-  - [ ] vb.
-- [ ] Haftalık istatistik grafikleri
+- [x] Toplam XP + Level gösterimi
+- [x] Level progress bar
+- [x] Skill bar'ları (her skill için ayrı seviye)
+- [x] Streak kartları (günlük, haftalık)
+- [x] Achievement / badge sistemi (mock veri ile, kilitli/açılmış ayrımı)
+  - [x] "İlk 7 gün streak" rozeti
+  - [x] "100 görev tamamlandı" rozeti
+  - [x] vb.
+- [x] Haftalık istatistik grafikleri
 
 ---
 
@@ -131,12 +131,12 @@ Referans: `docs/` klasörü (00–09 arası dokümanlar)
 
 ---
 
-## Faz 9 — Profil Ekranı _(atlandı)_
+## Faz 9 — Profil Ekranı
 
-- [ ] Avatar gösterimi
-- [ ] Rozetler / başarılar vitrini
-- [ ] Tercihler (bildirim, tema vb.)
-- [ ] Hesap ayarları
+- [x] Avatar gösterimi
+- [x] Rozetler / başarılar vitrini (top skill kartları + stat tile'ları)
+- [x] Tercihler (bildirim, tema, sesli hatırlatıcı toggle'ları)
+- [x] Hesap ayarları (e-posta, hakkında, çıkış, düzenleme modal'ı)
 
 ---
 
@@ -145,7 +145,7 @@ Referans: `docs/` klasörü (00–09 arası dokümanlar)
 - [x] Completion animasyonu (XP gain efekti) — `XPGainOverlay` (particles, ring burst, skill badges, progress bar)
 - [x] Level-up ekranı / modal — `LevelUpModal` (confetti, glow rings, bounce animations)
 - [x] Streak mileston bonus XP — `StreakMilestoneToast` (slide-in toast, milestone data for 3/7/14/30/60/100)
-- [ ] Clan event tamamlama bonusu
+- [x] Clan event tamamlama bonusu — `ClanChallengeBonusToast` + `clanService.claimChallengeBonus` (TaskDetail cascade entegre)
 - [x] Daily challenge sistemi — `DailyChallengeCard` (progress bars, countdown timer, XP rewards)
 - [x] Sezonluk event altyapısı — `SeasonalEventBanner` (shimmer, pulse, multiplier badge)
 - [x] TaskDetailScreen entegrasyonu (complete → XP anim → level-up → streak toast)

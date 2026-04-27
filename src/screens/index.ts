@@ -4,3 +4,6 @@ export * from './SkillsScreen';
 export * from './SkillDetailScreen';
 export * from './CommunityScreen';
 export * from './ClanScreen';
+export * from './HomeScreen';
+export * from './ProgressScreen';
+export * from './ProfileScreen';

@@ -7,7 +7,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { colors, spacing, radius } from '../theme';
 import { TasksScreen } from '../screens/TasksScreen';
 import { CreateTaskScreen } from '../screens/CreateTaskScreen';
@@ -17,23 +17,19 @@ import { CommunityScreen } from '../screens/CommunityScreen';
 import { ClanScreen } from '../screens/ClanScreen';
 import { SkillDetailScreen } from '../screens/SkillDetailScreen';
 import { SkillStatisticsScreen } from '../screens/SkillStatisticsScreen';
+import { HomeScreen } from '../screens/HomeScreen';
+import { ProgressScreen } from '../screens/ProgressScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import type { MainTabParamList, RootStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const d = colors;
 
-const PlaceholderScreen = ({ name }: { name: string }) => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>{name}</Text>
-    <Text style={styles.placeholderSub}>Yakında 🚀</Text>
-  </View>
-);
-
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  Home: 'home-outline',
   Tasks: 'checkmark-done-outline',
   Progress: 'stats-chart-outline',
-  Community: 'people-outline',
   Clan: 'shield-outline',
   Profile: 'person-outline',
 };
@@ -140,7 +136,7 @@ const GlassTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
 const MainTabs = () => (
   <Tab.Navigator
-    initialRouteName="Tasks"
+    initialRouteName="Home"
     tabBar={(props) => <GlassTabBar {...props} />}
     screenOptions={{
       headerShown: false,
@@ -148,14 +144,11 @@ const MainTabs = () => (
       tabBarHideOnKeyboard: true,
     }}
   >
+    <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="Tasks" component={TasksScreen} />
-    <Tab.Screen name="Progress" component={SkillsScreen} />
-    <Tab.Screen name="Community" component={CommunityScreen} />
+    <Tab.Screen name="Progress" component={ProgressScreen} />
     <Tab.Screen name="Clan" component={ClanScreen} />
-    <Tab.Screen
-      name="Profile"
-      children={() => <PlaceholderScreen name="Profile" />}
-    />
+    <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
 
@@ -166,6 +159,8 @@ export const AppNavigator = () => (
       <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
       <Stack.Screen name="SkillDetail" component={SkillDetailScreen} />
       <Stack.Screen name="SkillStatistics" component={SkillStatisticsScreen} />
+      <Stack.Screen name="Skills" component={SkillsScreen} />
+      <Stack.Screen name="Community" component={CommunityScreen} />
       <Stack.Screen
         name="CreateTask"
         options={{
@@ -246,21 +241,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.full,
-  },
-  placeholder: {
-    flex: 1,
-    backgroundColor: d.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  placeholderText: {
-    color: d.text,
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  placeholderSub: {
-    color: d.textSecondary,
-    fontSize: 15,
   },
 });

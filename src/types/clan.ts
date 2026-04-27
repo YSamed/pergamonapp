@@ -28,6 +28,8 @@ export type ClanChallenge = {
   startsAt: string;
   endsAt: string;
   isCompleted: boolean;
+  bonusXP: number;
+  bonusClaimedAt: string | null;
 };
 
 export type ClanOverview = {

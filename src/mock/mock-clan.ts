@@ -63,10 +63,12 @@ export const mockClanOverview: ClanOverview = {
     title: 'Haftalık 1000 XP Yarışması',
     description: 'Bu hafta klan olarak 1000 XP toplayın',
     targetScore: 1000,
-    currentScore: 1240,
+    currentScore: 985,
     startsAt: '2026-04-07T00:00:00Z',
     endsAt: '2026-04-13T23:59:59Z',
-    isCompleted: true,
+    isCompleted: false,
+    bonusXP: 100,
+    bonusClaimedAt: null,
   },
   recentActivity: [
     {

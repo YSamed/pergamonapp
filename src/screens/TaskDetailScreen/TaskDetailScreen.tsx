@@ -13,6 +13,7 @@ import type { RootStackParamList } from '../../types';
 import { colors, spacing, radius } from '../../theme';
 import { habitsService } from '../../services/habits.service';
 import { todosService } from '../../services/todos.service';
+import { clanService } from '../../services/clan.service';
 import type { Habit, Todo } from '../../types';
 import { InfoCard } from '../../components/TaskDetailScreen/InfoCard';
 import { WeeklyActivity } from '../../components/TaskDetailScreen/WeeklyActivity';
@@ -21,6 +22,7 @@ import {
   XPGainOverlay,
   LevelUpModal,
   StreakMilestoneToast,
+  ClanChallengeBonusToast,
 } from '../../components/Gamification';
 import { mockProgress } from '../../mock';
 import { getStreakBonus } from '../../modules/xp';
@@ -67,6 +69,9 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
   const [showStreakMilestone, setShowStreakMilestone] = useState(false);
   const [streakMilestoneCount, setStreakMilestoneCount] = useState(0);
   const [streakBonusXP, setStreakBonusXP] = useState(0);
+  const [showClanBonus, setShowClanBonus] = useState(false);
+  const [clanBonusXP, setClanBonusXP] = useState(0);
+  const [clanBonusTitle, setClanBonusTitle] = useState('');
 
   useEffect(() => {
     void load();
@@ -140,6 +145,17 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
       setStreakMilestoneCount(streakHit);
       setStreakBonusXP(bonus);
       setTimeout(() => setShowStreakMilestone(true), didLevelUp ? 4500 : 2600);
+    }
+
+    // Push contribution to active clan challenge and surface bonus when it tips over
+    await clanService.addContribution(mockProgress.user.id, earnedXP);
+    const clanReward = await clanService.claimChallengeBonus();
+    if (clanReward) {
+      setClanBonusXP(clanReward.bonusXP);
+      setClanBonusTitle(clanReward.challengeTitle);
+      const baseDelay = didLevelUp ? 5500 : 3600;
+      const finalDelay = streakHit > 0 ? baseDelay + 1500 : baseDelay;
+      setTimeout(() => setShowClanBonus(true), finalDelay);
     }
   };
 
@@ -386,6 +402,12 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
           streakCount={streakMilestoneCount}
           bonusXP={streakBonusXP}
           onDismiss={() => setShowStreakMilestone(false)}
+        />
+        <ClanChallengeBonusToast
+          visible={showClanBonus}
+          challengeTitle={clanBonusTitle}
+          bonusXP={clanBonusXP}
+          onDismiss={() => setShowClanBonus(false)}
         />
       </SafeAreaView>
     </View>

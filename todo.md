@@ -181,7 +181,37 @@ zenginleştirilmiş profil, program sistemi)
 
 ---
 
-## Faz 13 — Zenginleştirilmiş Profil & Kimlik
+## Faz 13 — Tab Bar Konsolidasyonu
+
+> Detaylı plan: `docs/feature-plans/04-tab-bar-konsolidasyonu.md`
+
+- [ ] `MainTabParamList` Progress kaldır, League ekle
+- [ ] `RootStackParamList` Achievements ekle
+- [ ] `AppNavigator` Tab/Stack yeniden yapılandırma
+- [ ] `src/components/Profile/` paylaşılan komponentler (LevelHeroCard, WeeklyXPChart, SkillBarsCard, AchievementsStrip)
+- [ ] `ProfileScreen` 10 section ile rebuild
+- [ ] `AchievementsScreen` (Stack)
+- [ ] `src/screens/ProgressScreen/` sil + exports temizle
+
+---
+
+## Faz 14 — Ranked Lig Sistemi
+
+> Detaylı plan: `docs/feature-plans/01-ranked-lig-sistemi.md`
+
+- [ ] 10 tier (Acemi → Elmas) + `League`, `UserLeagueState` tipleri
+- [ ] Haftalık 30 kişilik gruplar + Pazar reset
+- [ ] Habit Heartbeat (banked-day sistemi, max 7)
+- [ ] Yakut+ apex decay (5/8/10%/gün)
+- [ ] `RankBadge`, `HeartbeatBar`, `LeagueBanner`, `LeagueScreen` (yeni tab)
+- [ ] Promosyon / demosyon modal + toast
+- [ ] Freeze günleri (1/hafta + 100-gün streak hediyesi)
+- [ ] Decay warning + reset reminder push'ları
+- [ ] Diamond Tournament (Faz F)
+
+---
+
+## Faz 15 — Zenginleştirilmiş Profil & Kimlik
 
 > Detaylı plan: `docs/feature-plans/03-zenginlestirilmis-profil.md`
 
@@ -194,43 +224,13 @@ zenginleştirilmiş profil, program sistemi)
 
 ---
 
-## Faz 14 — Ranked Lig Sistemi
+## Faz 16 — Klan Revamp: Chat + Şeffaf Katkı
 
-> Detaylı plan: `docs/feature-plans/01-ranked-lig-sistemi.md`
-
-- [ ] 9 tier yapısı + `League`, `LeagueParticipant`, `UserLeagueState` tipleri
-- [ ] Haftalık 30 kişilik gruplar + Pazar reset
-- [ ] `LeagueBanner`, `LeagueLeaderboardScreen`, `RankBadge`
-- [ ] Promosyon / demosyon hesaplama + animasyonu
-- [ ] Üst tier (Usta+) günlük decay
-- [ ] Freeze günleri ve protection süresi
-- [ ] Decay warning + reset reminder push'ları
-
----
-
-## Faz 15 — Klan Revamp: Chat + Boss
-
-> Detaylı plan: `docs/feature-plans/02-klan-revamp-chat-boss.md`
+> Detaylı plan: `docs/feature-plans/02-klan-chat-revamp.md`
 
 - [ ] Klan chat altyapısı (mock + system messages)
-- [ ] `ClanChatList`, `ClanChatBubble` (4 varyant), `ClanChatInput`
-- [ ] Boss fight engine + `computeDamage`
-- [ ] `BossHealthBar`, `BossPanel`, `BossDefeatedModal`
-- [ ] Member Insights paneli
+- [ ] `ClanChatList`, `ClanChatBubble` (user + system varyantları), `ClanChatInput`
+- [ ] Otomatik sistem mesajları (görev / level-up / streak / klan bonus)
+- [ ] Member Insights paneli (haftalık bar chart, comparative streaks)
 - [ ] Roles & permissions (owner/admin/member)
-- [ ] Klan quests (boss dışı koop görevler)
-
----
-
-## Faz 16 — Program Sistemi (School-Replacement)
-
-> Detaylı plan: `docs/feature-plans/04-program-okul-yerine.md`
-
-- [ ] `ProgramTemplate`, `UserProgram`, `ProgramMilestone` tipleri
-- [ ] 4 başlangıç şablonu (yks-sayisal, frontend, b2-ingilizce, algoritma)
-- [ ] `ProgramsHubScreen`, `ProgramDetailScreen`, `ActiveProgramScreen`
-- [ ] Otomatik task spawn (TaskTemplate → habit/todo)
-- [ ] Checkpoint sistemi (self-quiz, reflection, mock-exam, project)
-- [ ] `MilestoneReportScreen` ve geri bildirim raporu
-- [ ] Profil `primaryGoal` → program önerisi entegrasyonu
-- [ ] Custom program builder (post-MVP)
+- [ ] Klan quests (haftalık koop görevler)

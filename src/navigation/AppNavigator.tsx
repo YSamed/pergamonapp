@@ -18,8 +18,9 @@ import { ClanScreen } from '../screens/ClanScreen';
 import { SkillDetailScreen } from '../screens/SkillDetailScreen';
 import { SkillStatisticsScreen } from '../screens/SkillStatisticsScreen';
 import { HomeScreen } from '../screens/HomeScreen';
-import { ProgressScreen } from '../screens/ProgressScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { LeagueScreen } from '../screens/LeagueScreen';
+import { AchievementsScreen } from '../screens/AchievementsScreen';
 import type { MainTabParamList, RootStackParamList } from '../types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -29,7 +30,7 @@ const d = colors;
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   Home: 'home-outline',
   Tasks: 'checkmark-done-outline',
-  Progress: 'stats-chart-outline',
+  League: 'trophy-outline',
   Clan: 'shield-outline',
   Profile: 'person-outline',
 };
@@ -146,7 +147,7 @@ const MainTabs = () => (
   >
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="Tasks" component={TasksScreen} />
-    <Tab.Screen name="Progress" component={ProgressScreen} />
+    <Tab.Screen name="League" component={LeagueScreen} />
     <Tab.Screen name="Clan" component={ClanScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
@@ -161,6 +162,7 @@ export const AppNavigator = () => (
       <Stack.Screen name="SkillStatistics" component={SkillStatisticsScreen} />
       <Stack.Screen name="Skills" component={SkillsScreen} />
       <Stack.Screen name="Community" component={CommunityScreen} />
+      <Stack.Screen name="Achievements" component={AchievementsScreen} />
       <Stack.Screen
         name="CreateTask"
         options={{

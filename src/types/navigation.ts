@@ -7,12 +7,13 @@ export type RootStackParamList = {
   SkillStatistics: undefined;
   Skills: undefined;
   Community: undefined;
+  Achievements: undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
   Tasks: undefined;
-  Progress: undefined;
+  League: undefined;
   Clan: undefined;
   Profile: undefined;
 };

@@ -4,6 +4,7 @@ export const colors = {
   surface: '#101C28', // Surface/1
   surfaceElevated: '#152435', // Surface/2
   border: '#233447', // Line subtle / Borders
+  cardBorder: '#233447', // Alias of border for card components
 
   // Text Hierarchy
   text: '#F5F7FB', // Text/high (Headlines)
@@ -22,6 +23,11 @@ export const colors = {
 
   success: '#4ED8C7',
   warning: '#F4B544',
+
+  // Difficulty colors
+  difficultyEasy: '#4ED8C7', // aqua
+  difficultyMedium: '#F4B544', // amber
+  difficultyHard: '#FF6B6B', // coral
 
   // Overlay
   overlay: 'rgba(0,0,0,0.6)',

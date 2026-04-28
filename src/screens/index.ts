@@ -5,5 +5,6 @@ export * from './SkillDetailScreen';
 export * from './CommunityScreen';
 export * from './ClanScreen';
 export * from './HomeScreen';
-export * from './ProgressScreen';
 export * from './ProfileScreen';
+export * from './AchievementsScreen';
+export * from './LeagueScreen';

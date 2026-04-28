@@ -14,11 +14,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList, User, UserProgress } from '../../types';
+import type {
+  League,
+  RootStackParamList,
+  User,
+  UserLeagueState,
+  UserProgress,
+} from '../../types';
 import { colors, radius, spacing } from '../../theme';
 import { profileService } from '../../services/profile.service';
 import { progressService } from '../../services/progress.service';
 import { clanService } from '../../services/clan.service';
+import { leagueService } from '../../services/league.service';
+import { COHORT_SIZE } from '../../modules/league';
+import {
+  AchievementsStrip,
+  LeagueSummaryCard,
+  LevelHeroCard,
+  SkillBarsCard,
+  WeeklyXPChart,
+} from '../../components/Profile';
 
 const d = colors;
 const avatarImage = require('../../assets/icons/iconn.png');
@@ -30,6 +45,8 @@ export const ProfileScreen = () => {
   const [user, setUser] = useState<User | null>(null);
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [clanName, setClanName] = useState<string | null>(null);
+  const [leagueState, setLeagueState] = useState<UserLeagueState | null>(null);
+  const [league, setLeague] = useState<League | null>(null);
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [notifications, setNotifications] = useState(true);
@@ -37,15 +54,21 @@ export const ProfileScreen = () => {
   const [darkMode, setDarkMode] = useState(true);
 
   const load = useCallback(async () => {
-    const [u, p] = await Promise.all([
+    const [u, p, ls, lg] = await Promise.all([
       profileService.getProfile(),
       progressService.getUserProgress(),
+      leagueService.getUserState().catch(() => null),
+      leagueService.getCurrentLeague().catch(() => null),
     ]);
     setUser(u);
     setProgress(p);
+    setLeagueState(ls);
+    setLeague(lg);
     if (u.clanId) {
       const overview = await clanService.getClanOverview(u.clanId);
       setClanName(overview.clan.name);
+    } else {
+      setClanName(null);
     }
   }, []);
 
@@ -64,7 +87,6 @@ export const ProfileScreen = () => {
   }
 
   const unlockedCount = progress.achievements.filter((a) => !!a.unlockedAt).length;
-  const topSkills = [...progress.skills].sort((a, b) => b.xp - a.xp).slice(0, 3);
 
   const openEdit = () => {
     setDraftName(user.displayName);
@@ -81,6 +103,22 @@ export const ProfileScreen = () => {
     setUser(updated);
     setEditing(false);
   };
+
+  const goToLeagueTab = () => {
+    const parent = navigation.getParent();
+    if (parent) {
+      parent.navigate('League' as never);
+    } else {
+      (navigation as unknown as {
+        navigate: (n: string, p?: unknown) => void;
+      }).navigate('Main', { screen: 'League' });
+    }
+  };
+
+  const myLeagueRank =
+    league && leagueState
+      ? league.participants.find((p) => p.userId === leagueState.userId)?.rank ?? 0
+      : 0;
 
   return (
     <View style={styles.screen}>
@@ -101,7 +139,7 @@ export const ProfileScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Identity */}
+          {/* Section 1: Identity */}
           <View style={styles.identityCard}>
             <View style={styles.avatarBig}>
               <Image source={avatarImage} style={styles.avatarBigImage} resizeMode="contain" />
@@ -119,7 +157,19 @@ export const ProfileScreen = () => {
             )}
           </View>
 
-          {/* Stat grid */}
+          {/* Section 2: League summary */}
+          {leagueState && league ? (
+            <LeagueSummaryCard
+              tier={leagueState.currentTier}
+              rank={myLeagueRank}
+              weeklyXP={leagueState.weeklyXP}
+              cohortSize={COHORT_SIZE}
+              endsAt={league.endsAt}
+              onPress={goToLeagueTab}
+            />
+          ) : null}
+
+          {/* Section 3: Stat grid */}
           <View style={styles.statGrid}>
             <StatTile
               label="Toplam XP"
@@ -143,31 +193,34 @@ export const ProfileScreen = () => {
             />
           </View>
 
-          {/* Top skills */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>En güçlü yetenekler</Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Skills')}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.linkText}>Tümü →</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.topSkillRow}>
-              {topSkills.map((skill) => (
-                <View key={skill.id} style={styles.topSkillCell}>
-                  <Text style={styles.topSkillIcon}>{skill.icon}</Text>
-                  <Text style={styles.topSkillLabel} numberOfLines={1}>
-                    {skill.label}
-                  </Text>
-                  <Text style={styles.topSkillLevel}>Lv {skill.level}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
+          {/* Section 4: Level hero */}
+          <LevelHeroCard progress={progress} />
 
-          {/* Preferences */}
+          {/* Section 5: Weekly XP chart */}
+          <WeeklyXPChart events={progress.recentXPEvents} />
+
+          {/* Section 6: Skill bars (top 6) */}
+          <SkillBarsCard
+            skills={progress.skills}
+            limit={6}
+            onSkillPress={(id) =>
+              navigation.navigate('SkillDetail', { skillId: id })
+            }
+            onSeeAll={() => navigation.navigate('Skills')}
+          />
+
+          {/* Section 7: Achievements strip */}
+          <AchievementsStrip
+            achievements={progress.achievements}
+            limit={5}
+            onSeeAll={() =>
+              (navigation as unknown as { navigate: (n: string) => void }).navigate(
+                'Achievements',
+              )
+            }
+          />
+
+          {/* Section 9: Preferences */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Tercihler</Text>
             <ToggleRow
@@ -190,35 +243,20 @@ export const ProfileScreen = () => {
             />
           </View>
 
-          {/* Quick links */}
+          {/* Section 10: Account links */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Keşfet</Text>
+            <Text style={styles.cardTitle}>Hesap</Text>
             <LinkRow
               icon="people-outline"
               label="Topluluk"
               onPress={() => navigation.navigate('Community')}
             />
             <LinkRow
-              icon="stats-chart-outline"
-              label="Yetenek istatistikleri"
-              onPress={() => navigation.navigate('SkillStatistics')}
-            />
-            <LinkRow
-              icon="ribbon-outline"
-              label="Tüm yetenekler"
-              onPress={() => navigation.navigate('Skills')}
-            />
-          </View>
-
-          {/* Account */}
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Hesap</Text>
-            <LinkRow icon="mail-outline" label={user.email} onPress={openEdit} />
-            <LinkRow
               icon="information-circle-outline"
               label="Hakkında & Yardım"
               onPress={() => undefined}
             />
+            <LinkRow icon="mail-outline" label={user.email} onPress={openEdit} />
             <LinkRow
               icon="log-out-outline"
               label="Çıkış yap"
@@ -486,47 +524,10 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   cardTitle: {
     color: d.text,
     fontSize: 17,
     fontWeight: '700',
-  },
-  linkText: {
-    color: d.primary,
-    fontSize: 13,
-    fontWeight: '800',
-  },
-
-  topSkillRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  topSkillCell: {
-    flex: 1,
-    backgroundColor: d.surfaceElevated,
-    borderRadius: radius.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    alignItems: 'center',
-    gap: 2,
-    borderWidth: 1,
-    borderColor: d.border,
-  },
-  topSkillIcon: { fontSize: 24 },
-  topSkillLabel: {
-    color: d.text,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  topSkillLevel: {
-    color: d.textSecondary,
-    fontSize: 11,
-    fontWeight: '800',
   },
 
   linkRow: {

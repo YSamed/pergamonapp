@@ -14,6 +14,7 @@ import { colors, spacing, radius } from '../../theme';
 import { habitsService } from '../../services/habits.service';
 import { todosService } from '../../services/todos.service';
 import { clanService } from '../../services/clan.service';
+import { leagueService } from '../../services/league.service';
 import type { Habit, Todo } from '../../types';
 import { InfoCard } from '../../components/TaskDetailScreen/InfoCard';
 import { WeeklyActivity } from '../../components/TaskDetailScreen/WeeklyActivity';
@@ -145,6 +146,12 @@ export const TaskDetailScreen = ({ route, navigation }: Props) => {
       setStreakMilestoneCount(streakHit);
       setStreakBonusXP(bonus);
       setTimeout(() => setShowStreakMilestone(true), didLevelUp ? 4500 : 2600);
+    }
+
+    // Push contribution to league weekly XP; mark heartbeat for habits
+    await leagueService.contributeXP(mockProgress.user.id, earnedXP);
+    if (taskType === 'habit') {
+      await leagueService.markHabitDone(mockProgress.user.id);
     }
 
     // Push contribution to active clan challenge and surface bonus when it tips over
